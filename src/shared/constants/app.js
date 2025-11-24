@@ -1,5 +1,5 @@
-export const BASE_API = "http://localhost:5000/api";
-export const BASE_URL = "http://localhost:5000";
+export const BASE_API = "https://ecommerce-backend-xope.onrender.com/api";
+export const BASE_URL = "https://ecommerce-backend-xope.onrender.com";
 
 // Gemini AI Configuration
 export const GEMINI_API_KEY =
