@@ -1,0 +1,181 @@
+/* ===== Modal chi tiết đơn hàng ===== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  display: flex;
+  align-items: center; /* căn giữa dọc */
+  justify-content: center; /* căn giữa ngang */
+}
+
+.modal-overlay.hidden {
+  display: none !important; /* Ẩn modal khi có class hidden */
+}
+/* Overlay che toàn màn hình, căn giữa modal */
+.modal-overlay {
+  transition: opacity 0.2s;
+}
+.modal-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Nội dung modal */
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  width: 400px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-in-out;
+}
+/* Modal nội dung căn giữa, responsive */
+.modal {
+  position: relative;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-header {
+  background: #f5f5f5;
+  border-bottom: 1px solid #eee;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+}
+
+.modal-title {
+  font-weight: 700;
+  color: #1976d2;
+  font-size: 18px;
+}
+
+.modal-body {
+  padding: 16px 20px;
+}
+
+.modal-footer {
+  border-top: 1px solid #eee;
+  border-radius: 0 0 12px 12px;
+  background: #f5f5f5;
+  padding: 12px 20px;
+  text-align: right;
+}
+
+.modal .close {
+  font-size: 28px;
+  color: #d32f2f;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.modal table {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+}
+.modal th,
+.modal td {
+  border: 1px solid #eee;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.modal th {
+  background: #f5f5f5;
+  font-weight: 600;
+}
+.modal td {
+  background: #fff;
+}
+
+/* Responsive */
+@media (max-width: 500px) {
+  .modal {
+    width: 95vw;
+    padding: 12px;
+  }
+}
+
+/* ===== Cart + Customer ===== */
+#my-cart,
+#customer {
+  background: #fff;
+  border-radius: 3px;
+  margin-top: 20px;
+  padding: 10px 15px;
+}
+.cart-nav-item {
+  height: 50px;
+  line-height: 50px;
+  font-size: 16px;
+  font-weight: bold;
+  border-bottom: 1px solid #ccc;
+}
+.cart-price a {
+  display: inline-table;
+  padding: 5px 10px;
+  color: #333;
+  text-decoration: none;
+  border-radius: 3px;
+  background: #ccc;
+}
+.cart-price a:hover {
+  background: #fff;
+}
+
+#customer-name,
+#customer-phone,
+#customer-mail,
+#customer-add,
+.by-now {
+  padding: 10px;
+}
+
+#update-cart {
+  border-radius: 3px;
+  border: 1px solid #305eb3;
+  background: #305eb3;
+  padding: 15px 20px;
+  color: #fff;
+}
+#update-cart:hover {
+  background: #ffffff;
+  color: #305eb3;
+}
+
+@media (max-width: 768px) {
+  .by-now:first-child {
+    text-align: left;
+  }
+}

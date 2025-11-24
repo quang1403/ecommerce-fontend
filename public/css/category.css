@@ -1,0 +1,129 @@
+/* Scoped styles for Category page - based on FeaturedProducts.css */
+
+.category-products-page {
+  padding: 32px 0;
+  background: #fff;
+}
+
+.category-products-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.category-products-header h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.category-products-header p {
+  color: #666;
+  font-size: 1rem;
+}
+
+.category-products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  padding: 0 16px;
+}
+
+.category-product-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.category-product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border-color: #3b82f6;
+}
+
+.category-product-card-image {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  background: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.category-product-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 16px;
+  transition: transform 0.3s ease;
+}
+
+.category-product-card:hover .category-product-card-image img {
+  transform: scale(1.05);
+}
+
+.category-product-card-content {
+  padding: 16px;
+}
+
+.category-product-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.category-product-card-brand {
+  color: #888;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+.category-product-card-price {
+  margin-bottom: 12px;
+}
+
+.category-product-price-current {
+  color: #e53935;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-right: 8px;
+}
+
+.category-product-price-original {
+  color: #888;
+  text-decoration: line-through;
+  font-size: 0.95rem;
+}
+
+.category-product-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.category-product-view-btn,
+.category-product-cart-btn {
+  flex: 1;
+  padding: 8px 0;
+  border: none;
+  border-radius: 6px;
+  background: #3b82f6;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.category-product-view-btn:hover,
+.category-product-cart-btn:hover {
+  background: #2563eb;
+}
+
+.no-category-products {
+  text-align: center;
+  color: #888;
+  padding: 32px 0;
+}

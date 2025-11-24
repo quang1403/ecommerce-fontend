@@ -1,0 +1,289 @@
+.warranty-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.warranty-header {
+  text-align: center;
+  margin-bottom: 30px;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.warranty-header h1 {
+  color: #2c3e50;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.warranty-header h1 i {
+  color: #27ae60;
+}
+
+.warranty-header p {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.warranty-loading,
+.warranty-error,
+.warranty-empty {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #ecf0f1;
+  border-top: 4px solid #27ae60;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.warranty-error i {
+  font-size: 3rem;
+  color: #e74c3c;
+  margin-bottom: 20px;
+}
+
+.warranty-empty i {
+  font-size: 4rem;
+  color: #95a5a6;
+  margin-bottom: 20px;
+}
+
+.retry-btn {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 20px;
+  transition: background 0.3s ease;
+}
+
+.retry-btn:hover {
+  background: #229954;
+}
+
+.warranty-list {
+  display: grid;
+  gap: 20px;
+}
+
+.warranty-item {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.warranty-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.warranty-product {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #ecf0f1;
+}
+
+.product-info h3 {
+  color: #2c3e50;
+  font-size: 1.4rem;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.order-id {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  margin: 0 0 4px 0;
+}
+
+.order-status {
+  color: #27ae60;
+  font-size: 0.85rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+.warranty-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.warranty-status.valid {
+  background: #d5f4e6;
+  color: #27ae60;
+}
+
+.warranty-status.expired {
+  background: #fadbd8;
+  color: #e74c3c;
+}
+
+.warranty-details {
+  display: grid;
+  gap: 15px;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.detail-item i {
+  color: #3498db;
+  font-size: 1.2rem;
+  width: 20px;
+  text-align: center;
+}
+
+.detail-item div {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-item label {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  margin-bottom: 2px;
+}
+
+.detail-item span {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.remaining-long {
+  color: #27ae60 !important;
+}
+
+.remaining-short {
+  color: #f39c12 !important;
+}
+
+.expired {
+  color: #e74c3c !important;
+}
+
+.warranty-warning {
+  background: #fff3cd;
+  border: 1px solid #ffeeba;
+  color: #856404;
+  padding: 12px 15px;
+  border-radius: 6px;
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.warranty-warning i {
+  color: #f39c12;
+}
+
+.warranty-footer {
+  margin-top: 40px;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.warranty-note h4 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.warranty-note ul {
+  list-style: none;
+  padding: 0;
+}
+
+.warranty-note li {
+  color: #7f8c8d;
+  padding: 8px 0;
+  padding-left: 20px;
+  position: relative;
+}
+
+.warranty-note li:before {
+  content: "•";
+  color: #27ae60;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+}
+
+@media (max-width: 768px) {
+  .warranty-container {
+    padding: 15px;
+  }
+
+  .warranty-header h1 {
+    font-size: 2rem;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .warranty-product {
+    flex-direction: column;
+    gap: 15px;
+    align-items: start;
+  }
+
+  .detail-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .warranty-item {
+    padding: 20px;
+  }
+}

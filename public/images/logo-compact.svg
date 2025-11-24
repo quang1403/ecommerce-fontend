@@ -1,0 +1,40 @@
+<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="phoneGradientSmall" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a90e2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#667eea;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="textGradientSmall" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#2c3e50;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#34495e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Phone icon - smaller -->
+  <g transform="translate(5, 5)">
+    <!-- Phone body -->
+    <rect x="0" y="0" width="20" height="30" rx="4" ry="4" fill="url(#phoneGradientSmall)"/>
+    
+    <!-- Screen -->
+    <rect x="2" y="4" width="16" height="22" rx="1.5" ry="1.5" fill="#ffffff" opacity="0.9"/>
+    
+    <!-- Home button -->
+    <circle cx="10" cy="28" r="1.5" fill="#ffffff" opacity="0.8"/>
+    
+    <!-- Speaker -->
+    <rect x="6" y="1.5" width="8" height="1" rx="0.5" fill="#ffffff" opacity="0.6"/>
+    
+    <!-- Screen elements -->
+    <rect x="3.5" y="6" width="13" height="1.5" rx="0.75" fill="#4a90e2" opacity="0.3"/>
+    <rect x="3.5" y="9" width="10" height="1" rx="0.5" fill="#4a90e2" opacity="0.2"/>
+  </g>
+  
+  <!-- Text "PhoneStore" - compact -->
+  <text x="32" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="700" fill="url(#textGradientSmall)">
+    PhoneStore
+  </text>
+  <text x="32" y="30" font-family="'Segoe UI', Arial, sans-serif" font-size="8" font-weight="400" fill="#7f8c8d">
+    ĐIỆN THOẠI CHÍNH HÃNG
+  </text>
+</svg>

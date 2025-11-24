@@ -1,0 +1,93 @@
+.OrderList {
+  padding: 24px;
+}
+.OrderList table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+.OrderList th,
+.OrderList td {
+  border: 1px solid #eee;
+  padding: 8px 12px;
+  text-align: left;
+}
+.OrderList th {
+  background: #f7f7f7;
+}
+.btn-detail {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.drawer-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: 100;
+}
+.drawer-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 420px;
+  height: 100%;
+  background: #fff;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.08);
+  z-index: 101;
+  padding: 28px;
+  overflow-y: auto;
+}
+.drawer-panel h3 {
+  margin-top: 0;
+}
+.drawer-panel label {
+  display: block;
+  margin: 14px 0 6px;
+  font-weight: 500;
+}
+.drawer-panel select {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+.drawer-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+.order-products {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+}
+.order-products th,
+.order-products td {
+  border: 1px solid #eee;
+  padding: 6px 10px;
+  text-align: left;
+}
+.order-products th {
+  background: #f7f7f7;
+}
+@media (max-width: 600px) {
+  .drawer-panel {
+    width: 100vw;
+    padding: 12px;
+  }
+  .OrderList {
+    padding: 8px;
+  }
+  .OrderList table th,
+  .OrderList table td {
+    padding: 6px 4px;
+  }
+}

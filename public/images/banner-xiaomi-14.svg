@@ -1,0 +1,50 @@
+<svg width="1200" height="600" viewBox="0 0 1200 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="50%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#34D399" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="600" fill="url(#gradient3)" />
+  
+  <!-- Xiaomi 14 Ultra Design -->
+  <rect x="740" y="80" width="220" height="440" rx="45" fill="#1F2937" />
+  <rect x="750" y="90" width="200" height="420" rx="35" fill="#111827" />
+  
+  <!-- Large Leica Camera Module -->
+  <circle cx="850" cy="180" r="70" fill="#374151" />
+  <circle cx="850" cy="180" r="55" fill="#1F2937" />
+  <circle cx="850" cy="180" r="40" fill="#059669" />
+  <text x="850" y="240" fill="#10B981" font-size="14" font-weight="bold" font-family="Arial, sans-serif" text-anchor="middle">LEICA</text>
+  
+  <!-- Additional cameras -->
+  <circle cx="780" cy="140" r="18" fill="#374151" />
+  <circle cx="920" cy="140" r="18" fill="#374151" />
+  <circle cx="780" cy="220" r="18" fill="#374151" />
+  
+  <!-- Screen -->
+  <rect x="765" y="280" width="170" height="200" rx="15" fill="#1F2937" />
+  
+  <!-- Text Content -->
+  <text x="80" y="130" fill="white" font-size="48" font-weight="bold" font-family="Arial, sans-serif">Xiaomi 14 Ultra</text>
+  <text x="80" y="180" fill="#A7F3D0" font-size="26" font-family="Arial, sans-serif">Photography Redefined</text>
+  <text x="80" y="230" fill="#E5E7EB" font-size="17" opacity="0.9" font-family="Arial, sans-serif">Hệ thống camera Leica chuyên nghiệp với khẩu độ</text>
+  <text x="80" y="260" fill="#E5E7EB" font-size="17" opacity="0.9" font-family="Arial, sans-serif">thay đổi, camera telephoto và ultra-wide 50MP</text>
+  <text x="80" y="290" fill="#E5E7EB" font-size="17" opacity="0.9" font-family="Arial, sans-serif">cho khả năng chụp ảnh tuyệt vời.</text>
+  
+  <!-- Price -->
+  <text x="80" y="360" fill="#FBBF24" font-size="36" font-weight="bold" font-family="Arial, sans-serif">Từ 21.990.000₫</text>
+  <text x="80" y="395" fill="#9CA3AF" font-size="22" text-decoration="line-through" font-family="Arial, sans-serif">24.990.000₫</text>
+  
+  <!-- Buttons -->
+  <rect x="80" y="430" width="140" height="48" rx="24" fill="#059669" />
+  <text x="150" y="458" fill="white" font-size="17" font-weight="bold" font-family="Arial, sans-serif" text-anchor="middle">Khám phá</text>
+  
+  <rect x="240" y="430" width="130" height="48" rx="24" fill="transparent" stroke="#059669" stroke-width="2" />
+  <text x="305" y="458" fill="#059669" font-size="17" font-weight="bold" font-family="Arial, sans-serif" text-anchor="middle">Xem demo</text>
+  
+  <!-- Leica Partnership Badge -->
+  <rect x="450" y="120" width="100" height="35" rx="17" fill="rgba(5, 150, 105, 0.2)" />
+  <text x="500" y="142" fill="#059669" font-size="16" font-weight="bold" font-family="Arial, sans-serif" text-anchor="middle">Leica</text>
+</svg>

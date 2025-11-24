@@ -1,29 +1,105 @@
-.App {
-  text-align: center;
+/* App.css - Modern App Layout */
+
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+html,
+body {
+  height: 100%;
+  font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+#root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+}
+
+/* Modern App Layout */
+.modern-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-light);
+}
+
+.modern-app .main-content {
+  flex: 1;
+  width: 100%;
+}
+
+/* Mobile Layout Adjustments */
+.modern-app.mobile-layout {
+  padding-bottom: 80px; /* Space for bottom navigation */
+}
+
+.modern-app.mobile-layout .main-content {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Desktop Layout */
+.modern-app.desktop-layout .main-content {
+  padding-bottom: 0;
+}
+
+/* Legacy App Layout */
+.legacy-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.legacy-app #body {
+  flex: 1;
+}
+
+/* Smooth Transitions */
+.modern-app,
+.legacy-app {
+  transition: all 0.3s ease;
+}
+
+/* Font Awesome Icons */
+.fas,
+.far,
+.fab {
+  font-family: "Font Awesome 5 Free", "Font Awesome 5 Brands";
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-light);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+}
+
+/* Selection Styling */
+::selection {
+  background: var(--primary-color);
   color: white;
 }
 
+::-moz-selection {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* App-link (legacy) */
 .App-link {
   color: #61dafb;
 }

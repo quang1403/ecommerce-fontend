@@ -1,0 +1,48 @@
+.Table {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.08);
+  margin-top: 2rem;
+}
+.Table h3 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  padding: 0.75rem;
+  text-align: left;
+}
+th {
+  background: #ffe1bc;
+}
+.status {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}
+.status.Đã-duyệt {
+  background: #c8e6c9;
+  color: #388e3c;
+}
+.status.Chờ-xử-lý {
+  background: #fff9c4;
+  color: #fbc02d;
+}
+.status.Đã-giao {
+  background: #bbdefb;
+  color: #1976d2;
+}
+button {
+  background: #fca61f;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}

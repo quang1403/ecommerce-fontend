@@ -1,0 +1,495 @@
+/* Modern Sidebar Styles */
+.modern-sidebar {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  padding: 0;
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+/* Custom Scrollbar */
+.modern-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.modern-sidebar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2px;
+}
+
+.modern-sidebar::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 2px;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  padding: 25px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 15px 15px 0 0;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.clear-filters {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.clear-filters:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Active Filters */
+.active-filters {
+  padding: 20px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #f8f9fa;
+}
+
+.active-filters h4 {
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+.filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-tag {
+  background: #667eea;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-tag button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.filter-tag button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Filter Section */
+.filter-section {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.section-header {
+  padding: 20px 25px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s ease;
+}
+
+.section-header:hover {
+  background: #f8f9fa;
+}
+
+.section-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-header i:last-child {
+  color: #999;
+  transition: transform 0.3s ease;
+}
+
+.section-content {
+  padding: 0 25px 25px 25px;
+}
+
+/* Price Range */
+.price-ranges {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.price-range-btn {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  padding: 10px 15px;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.price-range-btn:hover {
+  background: #e9ecef;
+  border-color: #667eea;
+}
+
+.price-range-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.custom-range {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 15px;
+}
+
+.range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.range-inputs input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.range-inputs span {
+  color: #666;
+  font-weight: 500;
+}
+
+/* Brand List */
+.brand-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkbox-item:hover {
+  color: #667eea;
+}
+
+.checkbox-item input[type="checkbox"] {
+  display: none;
+}
+
+.checkmark {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  position: relative;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.checkbox-item input:checked + .checkmark {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+}
+
+.checkbox-item input:checked + .checkmark::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.brand-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Features Grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.feature-btn {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  padding: 12px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  text-align: center;
+}
+
+.feature-btn:hover {
+  background: #e9ecef;
+  border-color: #667eea;
+  transform: translateY(-2px);
+}
+
+.feature-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.feature-btn i {
+  font-size: 16px;
+}
+
+/* Promotion Banners */
+.promotion-banners {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.promo-banner {
+  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+  border-radius: 12px;
+  padding: 20px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.promo-banner::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 70%
+  );
+}
+
+.promo-banner:hover {
+  transform: translateY(-3px);
+}
+
+.promo-banner.flash-sale {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+}
+
+.promo-banner.new-arrival {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.promo-banner.trade-in {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.promo-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.promo-content h5 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.promo-content p {
+  margin: 0;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.countdown {
+  margin-top: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+/* Sidebar Contact */
+.sidebar-contact {
+  padding: 25px;
+}
+
+.contact-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  padding: 20px;
+  color: white;
+  text-align: center;
+}
+
+.contact-icon {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
+  font-size: 20px;
+}
+
+.contact-info h4 {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.contact-info p {
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.contact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.contact-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .modern-sidebar {
+    position: static;
+    max-height: none;
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .modern-sidebar {
+    border-radius: 10px;
+  }
+
+  .sidebar-header,
+  .section-content {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .range-inputs {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .range-inputs input {
+    width: 100%;
+  }
+}
+
+/* Loading Animation */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.loading {
+  animation: pulse 1.5s ease-in-out infinite;
+}

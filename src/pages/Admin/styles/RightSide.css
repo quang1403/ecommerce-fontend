@@ -1,0 +1,9 @@
+.RightSide {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1rem;
+}
+.RightSide > div {
+  margin-bottom: 2rem;
+}

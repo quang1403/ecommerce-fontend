@@ -1,0 +1,626 @@
+/* Scoped CSS cho OrderManagement - tất cả styles đều trong .order-management */
+
+.order-management {
+  padding: 2rem;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.order-management h2 {
+  margin-bottom: 2rem;
+  color: #333;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.order-management .loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* Thống kê nhanh */
+.order-management .order-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.order-management .stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  border-left: 4px solid #007bff;
+}
+
+.order-management .stat-card.pending {
+  border-left-color: #ffc107;
+}
+
+.order-management .stat-card.confirmed {
+  border-left-color: #28a745;
+}
+
+.order-management .stat-card.shipping {
+  border-left-color: #17a2b8;
+}
+
+.order-management .stat-card.completed {
+  border-left-color: #28a745;
+}
+
+.order-management .stat-card.cancelled {
+  border-left-color: #dc3545;
+}
+
+.order-management .stat-card h3 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.order-management .stat-card p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Bộ lọc và tìm kiếm */
+.order-management .filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.order-management .filter-select,
+.order-management .search-input {
+  padding: 0.7rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.order-management .filter-select {
+  flex: 1;
+  min-width: 150px;
+}
+
+.order-management .search-input {
+  flex: 2;
+  min-width: 200px;
+}
+
+/* Enhanced Orders Table */
+.order-management .orders-table-wrapper {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+}
+
+.order-management .orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+/* Enhanced Table Header */
+.order-management .orders-table th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.2rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: none;
+  position: relative;
+}
+
+.order-management .th-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.order-management .th-icon {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+/* Enhanced Table Rows */
+.order-management .order-row {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.order-management .order-row:hover {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.order-management .orders-table td {
+  padding: 1.2rem 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+/* Enhanced Order ID */
+.order-management .order-id-badge {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  font-family: "Courier New", monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid #90caf9;
+}
+
+.order-management .order-prefix {
+  color: #1976d2;
+  margin-right: 2px;
+}
+
+.order-management .order-number {
+  color: #0d47a1;
+}
+
+.order-management .no-orders {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  background: white;
+  border-radius: 8px;
+}
+
+.order-management .no-orders p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Enhanced Customer Info */
+.order-management .customer-card {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.order-management .customer-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.order-management .customer-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.order-management .customer-name {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+.order-management .customer-email {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+/* Modern Status Badges */
+.order-management .status-badges {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.order-management .status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.order-management .status-badge::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 0.6rem;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.order-management .status-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.order-management .status-pending {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
+.order-management .status-pending::before {
+  background-color: #64748b;
+}
+
+.order-management .status-confirmed {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.order-management .status-confirmed::before {
+  background-color: white;
+}
+
+.order-management .status-shipping {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.order-management .status-shipping::before {
+  background-color: white;
+}
+
+.order-management .status-completed {
+  background: #10b981;
+  color: white;
+}
+
+.order-management .status-completed::before {
+  background-color: white;
+}
+
+.order-management .status-cancelled {
+  background: #ef4444;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.order-management .status-cancelled::before {
+  background-color: white;
+}
+
+/* Enhanced Action Container */
+.order-management .actions-container {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.order-management .action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.order-management .action-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.order-management .action-btn:hover::before {
+  left: 100%;
+}
+
+.order-management .action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.order-management .btn-view {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.order-management .btn-view:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+.order-management .btn-edit {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
+.order-management .btn-edit:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.order-management .btn-delete {
+  background: #f8fafc;
+  color: #ef4444;
+  border: 1px solid #fecaca;
+}
+
+.order-management .btn-delete:hover {
+  background: #ef4444;
+  color: white;
+}
+
+.order-management .btn-delete {
+  padding: 0.4rem 0.6rem;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.order-management .btn-delete:hover {
+  background: #c82333;
+  transform: scale(1.05);
+}
+
+.order-management .status-select {
+  padding: 0.4rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  min-width: 100px;
+}
+
+/* Phân trang */
+.order-management .pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.order-management .pagination button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  background: white;
+  color: #333;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.order-management .pagination button:hover:not(:disabled) {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.order-management .pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.order-management .pagination span {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Modal chi tiết */
+.order-management .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.order-management .modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 800px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 90%;
+}
+
+.order-management .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.order-management .modal-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.order-management .modal-close {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.order-management .modal-close:hover {
+  background: #c82333;
+}
+
+.order-management .modal-section {
+  margin-bottom: 1.5rem;
+}
+
+.order-management .modal-section h4 {
+  margin-bottom: 0.8rem;
+  color: #333;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+.order-management .order-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.order-management .info-group {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+}
+
+.order-management .info-group strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.order-management .info-group span {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.order-management .products-list {
+  border: 1px solid #eee;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.order-management .product-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.order-management .product-item:last-child {
+  border-bottom: none;
+}
+
+.order-management .product-item img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-right: 1rem;
+}
+
+.order-management .product-details {
+  flex: 1;
+}
+
+.order-management .product-details h5 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-size: 1rem;
+}
+
+.order-management .product-details p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.order-management .product-price {
+  text-align: right;
+  font-weight: 600;
+  color: #28a745;
+}
+
+.order-management .total-price {
+  text-align: right;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #dc3545;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid #eee;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .order-management {
+    padding: 1rem;
+  }
+
+  .order-management .orders-table {
+    overflow-x: auto;
+  }
+
+  .order-management .modal-content {
+    width: 95%;
+    padding: 1rem;
+  }
+
+  .order-management .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .order-management .order-info {
+    grid-template-columns: 1fr;
+  }
+}

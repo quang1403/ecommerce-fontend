@@ -1,0 +1,46 @@
+<svg width="1200" height="600" viewBox="0 0 1200 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C3AED" />
+      <stop offset="50%" stop-color="#A855F7" />
+      <stop offset="100%" stop-color="#C084FC" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="600" fill="url(#gradient5)" />
+  
+  <!-- Google Pixel 8 Pro Design -->
+  <rect x="750" y="80" width="200" height="440" rx="40" fill="#1F2937" />
+  <rect x="760" y="90" width="180" height="420" rx="30" fill="#000" />
+  
+  <!-- Camera Bar -->
+  <rect x="740" y="150" width="220" height="60" rx="30" fill="#374151" />
+  <circle cx="780" cy="180" r="18" fill="#7C3AED" />
+  <circle cx="820" cy="180" r="18" fill="#7C3AED" />
+  <circle cx="860" cy="180" r="12" fill="#9CA3AF" />
+  <rect x="900" y="170" width="30" height="20" rx="5" fill="#9CA3AF" />
+  
+  <!-- Screen -->
+  <rect x="770" y="240" width="160" height="260" rx="15" fill="#1F2937" />
+  
+  <!-- Text Content -->
+  <text x="80" y="130" fill="white" font-size="48" font-weight="bold" font-family="Arial, sans-serif">Google Pixel 8 Pro</text>
+  <text x="80" y="180" fill="#DDD6FE" font-size="26" font-family="Arial, sans-serif">AI cho mọi người</text>
+  <text x="80" y="230" fill="#E5E7EB" font-size="17" opacity="0.9" font-family="Arial, sans-serif">Chip Google Tensor G3 mạnh mẽ với khả năng AI tiên tiến,</text>
+  <text x="80" y="260" fill="#E5E7EB" font-size="17" opacity="0.9" font-family="Arial, sans-serif">camera computational photography đỉnh cao và</text>
+  <text x="80" y="290" fill="#E5E7EB" font-size="17" opacity="0.9" font-family="Arial, sans-serif">trải nghiệm Android thuần túy.</text>
+  
+  <!-- Price -->
+  <text x="80" y="360" fill="#A855F7" font-size="36" font-weight="bold" font-family="Arial, sans-serif">Từ 23.990.000₫</text>
+  <text x="80" y="395" fill="#9CA3AF" font-size="22" text-decoration="line-through" font-family="Arial, sans-serif">27.990.000₫</text>
+  
+  <!-- Buttons -->
+  <rect x="80" y="430" width="140" height="48" rx="24" fill="#7C3AED" />
+  <text x="150" y="458" fill="white" font-size="17" font-weight="bold" font-family="Arial, sans-serif" text-anchor="middle">Đặt trước</text>
+  
+  <rect x="240" y="430" width="150" height="48" rx="24" fill="transparent" stroke="#7C3AED" stroke-width="2" />
+  <text x="315" y="458" fill="#7C3AED" font-size="17" font-weight="bold" font-family="Arial, sans-serif" text-anchor="middle">Tính năng AI</text>
+  
+  <!-- Google Badge -->
+  <rect x="450" y="120" width="80" height="35" rx="17" fill="rgba(124, 58, 237, 0.2)" />
+  <text x="490" y="142" fill="#7C3AED" font-size="16" font-weight="bold" font-family="Arial, sans-serif" text-anchor="middle">Google</text>
+</svg>

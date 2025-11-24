@@ -1,0 +1,421 @@
+/* UserEdit Redesign - MobileCity style */
+.user-edit-main {
+  display: flex;
+  gap: 32px;
+  max-width: 1200px;
+  margin: 32px auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  min-height: 600px;
+}
+.user-edit-sidebar {
+  width: 260px;
+  background: #f7e6c7;
+  border-radius: 8px 0 0 8px;
+  padding: 32px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.user-edit-sidebar .user-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #fff;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: #bfa76a;
+}
+.user-edit-sidebar .user-name {
+  font-weight: bold;
+  font-size: 20px;
+  color: #bfa76a;
+  margin-bottom: 24px;
+}
+.user-edit-sidebar .sidebar-menu {
+  width: 100%;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.user-edit-sidebar .sidebar-menu li {
+  width: 100%;
+  padding: 12px 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  color: #333;
+  border-left: 4px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
+}
+.user-edit-sidebar .sidebar-menu li.active {
+  background: #fff;
+  border-left: 4px solid #bfa76a;
+  color: #bfa76a;
+}
+.user-edit-sidebar .sidebar-menu li:hover {
+  background: #f5f5f5;
+}
+.user-edit-content {
+  flex: 1;
+  padding: 32px 40px;
+}
+.user-edit-content h2 {
+  color: #bfa76a;
+  font-size: 24px;
+  margin-bottom: 24px;
+}
+.user-edit-form label {
+  font-weight: 500;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  display: block;
+}
+.user-edit-form input,
+.user-edit-form select {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+.user-edit-form button {
+  background: #bfa76a;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.user-edit-form button:hover {
+  background: #a88c4a;
+}
+.user-address-book {
+  margin-top: 16px;
+}
+.address-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+.address-table th,
+.address-table td {
+  border-bottom: 1px solid #eee;
+  padding: 10px 8px;
+  text-align: left;
+}
+.address-table th {
+  background: #f7e6c7;
+  color: #bfa76a;
+}
+.address-table tr {
+  background: #fff;
+}
+.address-table tr.default {
+  background: #f5f5f5;
+}
+.address-table .btn-link {
+  background: none;
+  border: none;
+  color: #bfa76a;
+  cursor: pointer;
+  font-size: 15px;
+  margin-right: 8px;
+}
+.address-table .btn-link.text-danger {
+  color: #e74c3c;
+}
+.address-table .btn-link:hover {
+  text-decoration: underline;
+}
+.btn-primary {
+  background: #bfa76a;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  background: #a88c4a;
+}
+.user-edit-message {
+  color: #e74c3c;
+  margin-top: 8px;
+}
+.user-toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  background: #fffbe6;
+  color: #bfa76a;
+  border: 1px solid #bfa76a;
+  border-radius: 8px;
+  padding: 16px 32px;
+  font-size: 16px;
+  z-index: 9999;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.user-toast-error {
+  color: #e74c3c;
+  border-color: #e74c3c;
+}
+.user-toast-success {
+  color: #27ae60;
+  border-color: #27ae60;
+}
+.user-toast-close {
+  margin-left: 16px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+/* Thông tin trả góp */
+.user-installment-info {
+  margin-top: 16px;
+}
+
+.installment-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: #fff;
+}
+
+.installment-table thead {
+  background: #f7e6c7;
+}
+
+.installment-table th,
+.installment-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.installment-table th {
+  color: #bfa76a;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.installment-table td {
+  font-size: 14px;
+  color: #333;
+}
+
+.installment-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.installment-status-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #fff;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.btn-view-detail {
+  background: #bfa76a;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-view-detail:hover {
+  background: #a88c4a;
+}
+
+/* Modal */
+.installment-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s;
+}
+
+.installment-modal-content {
+  background: #fff;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.installment-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f7f7f7;
+}
+
+.installment-modal-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 20px;
+}
+
+.installment-modal-close {
+  background: none;
+  border: none;
+  font-size: 32px;
+  cursor: pointer;
+  color: #999;
+  line-height: 1;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+}
+
+.installment-modal-close:hover {
+  color: #333;
+}
+
+.installment-modal-body {
+  padding: 24px;
+}
+
+.modal-section {
+  margin-bottom: 24px;
+}
+
+.modal-section h4 {
+  color: #bfa76a;
+  font-size: 16px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #f7e6c7;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.info-item strong {
+  color: #666;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.info-item span {
+  color: #333;
+  text-align: right;
+  font-size: 14px;
+}
+
+.product-item {
+  background: #f9f9f9;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.product-info strong {
+  display: block;
+  color: #333;
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+
+.product-variant {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.product-price {
+  color: #e74c3c;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.installment-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+  text-align: right;
+  background: #f7f7f7;
+}
+
+.btn-close-modal {
+  background: #999;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 24px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-close-modal:hover {
+  background: #777;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .installment-table {
+    font-size: 12px;
+  }
+
+  .installment-table th,
+  .installment-table td {
+    padding: 8px;
+  }
+
+  .installment-modal-content {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}

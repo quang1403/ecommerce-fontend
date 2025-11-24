@@ -1,0 +1,27 @@
+.deals-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+.deals-list {
+  margin-top: 24px;
+}
+.deals-item {
+  padding: 18px 0;
+  border-bottom: 1px solid #eee;
+}
+.deals-item:last-child {
+  border-bottom: none;
+}
+.deals-item h2 {
+  font-size: 1.3rem;
+  color: #dc2626;
+  margin-bottom: 8px;
+}
+.deals-item p {
+  color: #444;
+  font-size: 1rem;
+}
