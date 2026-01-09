@@ -1,9 +1,30 @@
 /* Hero Section Styles */
 .hero-section {
   position: relative;
-  min-height: 80vh;
-  overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  width: 100%;
+  padding: 20px 0;
+  background: transparent;
+}
+
+.hero-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.hero-main-content {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 15px;
+  width: 100%;
+}
+
+.hero-slider-wrapper {
+  width: 100%;
+}
+
+.hero-video-wrapper {
+  width: 100%;
 }
 
 /* Loading State */
@@ -11,7 +32,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: transparent;
 }
 
 .hero-loading {
@@ -317,23 +338,40 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1200px) {
+  .hero-main-content {
+    grid-template-columns: 1fr 260px;
+    gap: 12px;
+  }
+
+  .hero-container {
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 992px) {
+  .hero-main-content {
+    grid-template-columns: 1fr 240px;
+    gap: 10px;
+  }
+
+  .hero-container {
+    padding: 0 15px;
+  }
+}
+
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: 2.5rem;
+  .hero-main-content {
+    grid-template-columns: 1fr;
+    gap: 15px;
   }
 
-  .hero-description {
-    font-size: 1rem;
+  .hero-video-wrapper {
+    display: none;
   }
 
-  .hero-actions {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .hero-cta {
-    width: 100%;
-    justify-content: center;
+  .hero-container {
+    padding: 0 10px;
   }
 
   .stats-grid {
@@ -348,32 +386,11 @@
   .stat-item:last-child {
     border-bottom: none;
   }
-
-  .hero-nav {
-    width: 40px;
-    height: 40px;
-  }
-
-  .hero-nav.prev {
-    left: 15px;
-  }
-
-  .hero-nav.next {
-    right: 15px;
-  }
 }
 
 @media (max-width: 480px) {
-  .hero-title {
-    font-size: 2rem;
-  }
-
-  .hero-content {
-    padding: 40px 0;
-  }
-
-  .hero-text {
-    padding: 20px 0;
+  .hero-container {
+    padding: 0 10px;
   }
 
   .stat-item {

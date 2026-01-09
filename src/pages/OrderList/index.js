@@ -45,6 +45,8 @@ const OrderList = () => {
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -73,6 +75,17 @@ const OrderList = () => {
     }
     return sum;
   }, 0);
+
+  // Tính toán pagination
+  const indexOfLastOrder = currentPage * itemsPerPage;
+  const indexOfFirstOrder = indexOfLastOrder - itemsPerPage;
+  const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
+  const totalPages = Math.ceil(orders.length / itemsPerPage);
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div className={styles.modernOrderContainer}>
@@ -261,10 +274,7 @@ const OrderList = () => {
                           {color && (
                             <span className={styles.spec}>Màu: {color}</span>
                           )}
-                          {isHeadphoneProduct(
-                            item.productId
-                          ) ? // Headphone specs - only color (already shown above)
-                          null : (
+                          {isHeadphoneProduct(item.productId) ? null : ( // Headphone specs - only color (already shown above)
                             // Phone specs
                             <>
                               {ram && (
@@ -292,8 +302,8 @@ const OrderList = () => {
                 })}
               </div>
               <div className={styles.actionButtons}>
-                {/* Nút hủy đơn nếu chưa bị hủy */}
-                {selectedOrder.status !== 4 && (
+                {/* Nút hủy đơn chỉ hiển thị khi chưa hoàn thành và chưa bị hủy */}
+                {selectedOrder.status !== 3 && selectedOrder.status !== 4 && (
                   <button
                     type="button"
                     className={`${styles.actionBtn} ${styles.cancelBtn}`}
@@ -390,7 +400,7 @@ const OrderList = () => {
           </div>
         ) : (
           <>
-            {orders.map((order) => (
+            {currentOrders.map((order) => (
               <div
                 key={order._id}
                 className={`${styles.orderCard} ${
@@ -470,6 +480,47 @@ const OrderList = () => {
                 </div>
               </div>
             ))}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className={styles.pagination}>
+                <button
+                  className={`${styles.paginationBtn} ${
+                    currentPage === 1 ? styles.disabled : ""
+                  }`}
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  <i className="fas fa-chevron-left"></i>
+                  Trước
+                </button>
+
+                <div className={styles.paginationPages}>
+                  {[...Array(totalPages)].map((_, index) => (
+                    <button
+                      key={index + 1}
+                      className={`${styles.paginationPage} ${
+                        currentPage === index + 1 ? styles.active : ""
+                      }`}
+                      onClick={() => paginate(index + 1)}
+                    >
+                      {index + 1}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  className={`${styles.paginationBtn} ${
+                    currentPage === totalPages ? styles.disabled : ""
+                  }`}
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Tiếp
+                  <i className="fas fa-chevron-right"></i>
+                </button>
+              </div>
+            )}
 
             <div className={styles.orderFooter}>
               <Link to="/" className={styles.backHomeBtn}>

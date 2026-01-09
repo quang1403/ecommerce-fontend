@@ -1,12 +1,13 @@
 import React from "react";
 import { registerCustomer } from "../../services/Api";
+import GoogleLoginButton from "../../shared/components/GoogleLoginButton";
+
 const Register = () => {
   const [form, setForm] = React.useState({
     fullName: "",
     password: "",
     email: "",
     phone: "",
-    address: "",
   });
   const [error, setError] = React.useState("");
   const [success, setSuccess] = React.useState("");
@@ -43,94 +44,91 @@ const Register = () => {
         password: "",
         email: "",
         phone: "",
-        address: "",
       });
     } catch (err) {
+      console.error("Registration error:", err);
       setError(err?.response?.data?.message || "Đăng ký thất bại!");
     }
   };
   return (
     <>
-      {/* Register Form */}
-      <div id="customer">
-        {error && <div className="alert alert-danger text-center">{error}</div>}
-        {success && (
-          <div className="alert alert-success text-center">{success}</div>
-        )}
-        <h3 className="text-center">Đăng ký</h3>
-        <form method="post" onSubmit={handleSubmit}>
-          <div className="row">
-            <div id="customer-name" className="col-lg-6 col-md-6 col-sm-12">
+      <div className="register-container">
+        {error && <div className="alert alert-danger">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+
+        <h3 className="register-title">Đăng ký</h3>
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-row">
+            <div className="form-col">
               <input
-                placeholder="Họ và tên (bắt buộc)"
                 type="text"
                 name="fullName"
-                className="form-control"
+                className="form-input"
+                placeholder="Họ và tên (bắt buộc)"
                 required
                 value={form.fullName}
                 onChange={handleChange}
               />
             </div>
-            <div id="customer-pass" className="col-lg-6 col-md-6 col-sm-12">
+            <div className="form-col">
               <input
-                placeholder="Mật khẩu (bắt buộc)"
                 type="password"
                 name="password"
-                className="form-control"
+                className="form-input"
+                placeholder="Mật khẩu (bắt buộc)"
                 required
                 value={form.password}
                 onChange={handleChange}
               />
             </div>
-            <div id="customer-mail" className="col-lg-6 col-md-6 col-sm-12">
+          </div>
+
+          <div className="form-row">
+            <div className="form-col">
               <input
-                placeholder="Email (bắt buộc)"
                 type="email"
                 name="email"
-                className="form-control"
+                className="form-input"
+                placeholder="Email (bắt buộc)"
                 required
                 value={form.email}
                 onChange={handleChange}
               />
             </div>
-            <div id="customer-phone" className="col-lg-6 col-md-6 col-sm-12">
+            <div className="form-col">
               <input
-                placeholder="Số điện thoại (bắt buộc)"
                 type="text"
                 name="phone"
-                className="form-control"
+                className="form-input"
+                placeholder="Số điện thoại (bắt buộc)"
                 required
                 value={form.phone}
                 onChange={handleChange}
               />
             </div>
-            <div id="customer-add" className="col-lg-12 col-md-12 col-sm-12">
-              <input
-                placeholder="Địa chỉ nhà riêng hoặc cơ quan (bắt buộc)"
-                type="text"
-                name="address"
-                className="form-control"
-                required
-                value={form.address}
-                onChange={handleChange}
-              />
-            </div>
           </div>
-          <div className="row mt-3">
-            <div className="by-now col-lg-6 col-md-6 col-sm-12">
-              <button type="submit" className="btn btn-primary w-100">
-                <b>Đăng ký ngay</b>
+
+          <div className="form-row">
+            <div className="form-col">
+              <button type="submit" className="btn-submit">
+                Đăng ký ngay
               </button>
             </div>
-            <div className="by-now col-lg-6 col-md-6 col-sm-12">
-              <a href="/">
-                <b>Quay về trang chủ</b>
+            <div className="form-col">
+              <a href="/" className="btn-back">
+                Quay về trang chủ
               </a>
             </div>
           </div>
         </form>
+
+        <div className="divider">
+          <span>HOẶC</span>
+        </div>
+
+        <GoogleLoginButton text="Đăng ký với Google" />
       </div>
-      {/* End Register Form */}
     </>
   );
 };

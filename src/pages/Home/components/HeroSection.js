@@ -1,53 +1,24 @@
-import { useState, useEffect } from "react";
 import ModernHeroSlider from "../../../shared/components/ModernHeroSlider/ModernHeroSlider";
-import BannerApi from "../../../services/BannerApi";
+import VideoSection from "../../../shared/components/VideoSection/VideoSection";
 import "./HeroSection.css";
 
 const HeroSection = () => {
-  const [slidesData, setSlidesData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // Fetch banner data from API
-  useEffect(() => {
-    const fetchBanners = async () => {
-      try {
-        setLoading(true);
-        const response = await BannerApi.getActiveBanners();
-        const transformedSlides = BannerApi.transformToSliderData(response.data);
-        setSlidesData(transformedSlides);
-      } catch (error) {
-        console.log("Failed to load banners, using default slides:", error);
-        // Will use default slides in ModernHeroSlider
-        setSlidesData(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBanners();
-  }, []);
-
-  if (loading) {
-    return (
-      <section className="hero-section loading">
-        <div className="hero-loading">
-          <div className="loading-spinner"></div>
-          <p>Đang tải...</p>
-        </div>
-      </section>
-    );
-  }
-
+  // ModernHeroSlider will handle fetching sliders from API
+  // No need to fetch here anymore
   return (
     <section className="hero-section">
-      {/* Modern Hero Slider */}
-      <ModernHeroSlider 
-        slidesData={slidesData}
-        autoPlay={true}
-        autoPlayInterval={5000}
-      />
-      
-      {/* Quick Stats - Moved outside slider */}
+      <div className="hero-container">
+        <div className="hero-main-content">
+          <div className="hero-slider-wrapper">
+            <ModernHeroSlider autoPlay={true} autoPlayInterval={5000} />
+          </div>
+          <div className="hero-video-wrapper">
+            <VideoSection />
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Stats */}
       <div className="hero-stats">
         <div className="container">
           <div className="stats-grid">

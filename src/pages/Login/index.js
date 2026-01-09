@@ -3,7 +3,7 @@ import { loginCustomer } from "../../services/Api";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../../redux-setup/reducers/auth";
 import { useNavigate } from "react-router-dom";
-import "./Login.css";
+import GoogleLoginButton from "../../shared/components/GoogleLoginButton";
 
 const Login = () => {
   const [formInputs, setFormInputs] = useState({});
@@ -76,9 +76,15 @@ const Login = () => {
             Đăng nhập ngay
           </button>
         </form>
+        <div className="divider">
+          <span>HOẶC</span>
+        </div>
+        <GoogleLoginButton />
         <div className="login-links">
-          <a href="/register">Đăng ký tài khoản</a>
-          <a href="/forgot-password">Quên mật khẩu?</a>
+          <div className="login-links-row">
+            <a href="/register">Đăng ký tài khoản</a>
+            <a href="/forgot-password">Quên mật khẩu?</a>
+          </div>
           <a href="/">Quay về trang chủ</a>
         </div>
       </div>

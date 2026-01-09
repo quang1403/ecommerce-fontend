@@ -44,12 +44,24 @@ const AppContent = () => {
     </div>
   );
 };
+
+const ChatbotWrapper = () => {
+  const location = useLocation();
+
+  // Don't show chatbot on admin pages
+  if (location.pathname.startsWith("/admin")) {
+    return null;
+  }
+
+  return <AIChatbot />;
+};
+
 const App = () => (
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
       <BrowserRouter>
         <AppContent />
-        <AIChatbot />
+        <ChatbotWrapper />
         <ToastContainer
           position="top-right"
           autoClose={5000}

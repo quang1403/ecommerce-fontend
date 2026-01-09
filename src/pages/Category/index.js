@@ -141,50 +141,7 @@ const Category = () => {
       </div>
       <div className="allproducts-content">
         {/* Sidebar Filter */}
-        <aside className="allproducts-sidebar">
-          <div className="allproducts-filter-section">
-            <div className="allproducts-filter-header">
-              <h3>Bộ lọc</h3>
-              <button className="allproducts-clear-btn" onClick={clearFilters}>
-                Xóa bộ lọc
-              </button>
-            </div>
-            <div className="allproducts-filter-group">
-              <label>Tìm kiếm</label>
-              <input
-                type="text"
-                placeholder="Nhập tên sản phẩm..."
-                value={filters.search}
-                onChange={(e) => handleFilterChange("search", e.target.value)}
-                className="allproducts-search-input"
-              />
-            </div>
-            <div className="allproducts-filter-group">
-              <label>Khoảng giá</label>
-              <div className="allproducts-price-range">
-                <input
-                  type="number"
-                  placeholder="Giá từ"
-                  value={filters.minPrice}
-                  onChange={(e) =>
-                    handleFilterChange("minPrice", e.target.value)
-                  }
-                  className="allproducts-price-input"
-                />
-                <span>-</span>
-                <input
-                  type="number"
-                  placeholder="Giá đến"
-                  value={filters.maxPrice}
-                  onChange={(e) =>
-                    handleFilterChange("maxPrice", e.target.value)
-                  }
-                  className="allproducts-price-input"
-                />
-              </div>
-            </div>
-          </div>
-        </aside>
+        
         <main className="allproducts-main">
           <div className="allproducts-toolbar">
             <div className="allproducts-results-info">

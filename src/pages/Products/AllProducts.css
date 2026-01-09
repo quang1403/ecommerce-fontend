@@ -370,7 +370,7 @@
 }
 
 .allproducts-card-price {
-  color: red;
+  color: #eb1f27;
   margin-bottom: 15px;
   text-align: center;
 }
@@ -378,7 +378,13 @@
 .allproducts-price-current {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #dc3545;
+  color: #eb1f27;
+}
+
+.allproducts-price-sale {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #eb1f27;
 }
 
 .allproducts-price-original {

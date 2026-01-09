@@ -213,11 +213,7 @@ const ModernCart = () => {
                             Bộ nhớ: {item.variant.storage}
                           </span>
                         )}
-                        {item.variant?.condition && (
-                          <span className="spec">
-                            Tình trạng: {item.variant.condition}
-                          </span>
-                        )}
+                        
                       </div>
                       <div className="item-price">
                         <span className="price">

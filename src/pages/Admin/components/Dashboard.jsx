@@ -6,10 +6,13 @@ import {
   getRevenueByMonth,
   getAllOrdersAdmin,
   getCustomers,
+  getCommentsProduct,
+  getProducts,
 } from "../../../services/Api";
 import "../styles/Dashboard.css";
 import { getImageProduct } from "../../../shared/utils";
-const Dashboard = () => {
+
+const Dashboard = ({ onNavigateToOrders }) => {
   const [stats, setStats] = useState({
     totalOrders: 0,
     totalRevenue: 0,
@@ -21,40 +24,122 @@ const Dashboard = () => {
   const [topProducts, setTopProducts] = useState([]);
   const [revenueData, setRevenueData] = useState([]);
   const [customers, setCustomers] = useState([]);
+  const [activities, setActivities] = useState([]);
+  const [categorySales, setCategorySales] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Format thời gian relative (từ Updates.jsx)
+  const formatTimeAgo = (date) => {
+    const now = new Date();
+    const diffInMinutes = Math.floor((now - new Date(date)) / (1000 * 60));
+
+    if (diffInMinutes < 1) return "Vừa xong";
+    if (diffInMinutes < 60) return `${diffInMinutes} phút trước`;
+
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours} giờ trước`;
+
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `${diffInDays} ngày trước`;
+  };
+
+  // Tạo activities từ đơn hàng (Logic giống Updates.jsx)
+  const generateActivities = (orders, users = [], latestComment = null) => {
+    const activities = [];
+
+    // Thêm comment mới nhất nếu có
+    if (latestComment) {
+      activities.push({
+        id: `comment-${latestComment._id}`,
+        icon: "💬",
+        iconClass: "comment-icon",
+        text: `${
+          latestComment.userId?.fullName ||
+          latestComment.userId?.name ||
+          latestComment.name ||
+          "Khách hàng"
+        } đã bình luận về sản phẩm "${
+          latestComment.product?.name || "Sản phẩm"
+        }"`,
+        time: latestComment.createdAt,
+      });
+    }
+
+    // Lấy tối đa 4 đơn hàng (hoặc 3 nếu có comment)
+    const maxOrders = latestComment ? 3 : 4;
+    const recentOrders = orders.slice(0, maxOrders);
+
+    recentOrders.forEach((order) => {
+      const customerId =
+        order.customerId?._id || order.customerId || order.customer?._id;
+      const matchedUser = users.find((user) => user._id === customerId);
+
+      const customerName =
+        matchedUser?.fullName ||
+        matchedUser?.name ||
+        order.customer?.fullName ||
+        order.customer?.name ||
+        order.customerInfo?.fullName ||
+        order.customerInfo?.name ||
+        order.shippingInfo?.fullName ||
+        `Khách hàng #${String(customerId || order._id).slice(-6)}`;
+
+      let message = "";
+      let icon = "📦";
+      let iconClass = "order-icon";
+
+      switch (order.status) {
+        case 0:
+          message = "vừa đặt đơn hàng mới";
+          icon = "🛒";
+          iconClass = "user-icon";
+          break;
+        case 1:
+          message = "đơn hàng đã được xác nhận";
+          icon = "✅";
+          iconClass = "order-icon";
+          break;
+        case 2:
+          message = "đơn hàng đang được giao";
+          icon = "🚚";
+          iconClass = "order-icon";
+          break;
+        case 3:
+          message = "đã nhận hàng thành công";
+          icon = "📦";
+          iconClass = "order-icon";
+          break;
+        case 4:
+          message = "đã hủy đơn hàng";
+          icon = "❌";
+          iconClass = "order-icon";
+          break;
+        default:
+          message = "có cập nhật đơn hàng";
+          icon = "📋";
+          iconClass = "order-icon";
+      }
+
+      // Format text: "{customerName} {message}"
+      activities.push({
+        id: order._id,
+        icon,
+        iconClass,
+        text: `${customerName} ${message}`,
+        time: order.updatedAt || order.createdAt,
+      });
+    });
+
+    return activities;
+  };
 
   // Tính doanh thu theo tháng từ orders
   const calculateMonthlyRevenue = (orders) => {
-    const monthlyData = {};
     const currentYear = new Date().getFullYear();
-
-    // Khởi tạo 12 tháng với doanh thu = 0
-    for (let i = 1; i <= 12; i++) {
-      const month = i.toString().padStart(2, "0");
-      monthlyData[month] = {
-        month: `Tháng ${i}`,
-        revenue: 0,
-        orderCount: 0,
-      };
-    }
-
-    // Tính doanh thu từ orders của năm hiện tại
-    orders.forEach((order) => {
-      const orderDate = new Date(order.createdAt || order.updatedAt);
-      if (orderDate.getFullYear() === currentYear) {
-        const month = (orderDate.getMonth() + 1).toString().padStart(2, "0");
-        if (monthlyData[month]) {
-          const revenue = order.total || order.totalAmount || 0;
-          monthlyData[month].revenue += revenue;
-          monthlyData[month].orderCount += 1;
-        }
-      }
-    });
-
-    // Lấy 6 tháng gần nhất (bao gồm cả tháng không có dữ liệu)
     const currentMonth = new Date().getMonth() + 1; // 1-12
     const result = [];
 
+    // Tạo danh sách 6 tháng gần nhất (bao gồm năm trước nếu cần)
     for (let i = 5; i >= 0; i--) {
       let monthNum = currentMonth - i;
       let year = currentYear;
@@ -65,21 +150,25 @@ const Dashboard = () => {
         year = currentYear - 1;
       }
 
-      const monthKey = monthNum.toString().padStart(2, "0");
-      const monthName = `Tháng ${monthNum}`;
-
-      // Luôn thêm tháng vào result, dù có dữ liệu hay không
       const monthData = {
-        month: monthName,
+        month: `Tháng ${monthNum}`,
         revenue: 0,
         orderCount: 0,
       };
 
-      // Nếu tháng này thuộc năm hiện tại và có dữ liệu
-      if (year === currentYear && monthlyData[monthKey]) {
-        monthData.revenue = monthlyData[monthKey].revenue;
-        monthData.orderCount = monthlyData[monthKey].orderCount;
-      }
+      // Tính doanh thu từ orders của tháng này
+      orders.forEach((order) => {
+        const orderDate = new Date(order.createdAt || order.updatedAt);
+        const orderYear = orderDate.getFullYear();
+        const orderMonth = orderDate.getMonth() + 1;
+
+        // Chỉ tính các orders thuộc tháng và năm hiện tại đang xét
+        if (orderYear === year && orderMonth === monthNum) {
+          const revenue = order.total || order.totalAmount || 0;
+          monthData.revenue += revenue;
+          monthData.orderCount += 1;
+        }
+      });
 
       result.push(monthData);
     }
@@ -102,6 +191,7 @@ const Dashboard = () => {
         productsResponse,
         revenueResponse,
         customersResponse,
+        allProductsResponse,
       ] = await Promise.all([
         getDashboardStats().catch((err) => {
           console.error(err);
@@ -117,13 +207,18 @@ const Dashboard = () => {
         }),
         // Sử dụng getAllOrdersAdmin thay vì getRevenueByMonth
         getAllOrdersAdmin().catch((err) => {
-          console.error("❌ getAllOrdersAdmin for revenue failed:", err);
+          console.error(err);
           return { data: null };
         }),
         // Thêm API lấy customers
         getCustomers().catch((err) => {
-          console.error("❌ getCustomers failed:", err);
+          console.error( err);
           return { data: null };
+        }),
+        // Lấy tất cả products để fetch comments
+        getProducts().catch((err) => {
+          console.error(err);
+          return { data: { data: [] } };
         }),
       ]);
 
@@ -153,24 +248,102 @@ const Dashboard = () => {
       }
 
       // Xử lý dữ liệu doanh thu từ orders
+      let ordersForRevenue = [];
       if (revenueResponse?.data) {
-        const orders = Array.isArray(revenueResponse.data)
+        ordersForRevenue = Array.isArray(revenueResponse.data)
           ? revenueResponse.data
           : revenueResponse.data?.orders || [];
 
-        if (orders.length > 0) {
-          const monthlyRevenue = calculateMonthlyRevenue(orders);
+        if (ordersForRevenue.length > 0) {
+          const monthlyRevenue = calculateMonthlyRevenue(ordersForRevenue);
           setRevenueData(monthlyRevenue);
         }
       }
 
       // Xử lý dữ liệu customers
+      let customersData = [];
       if (customersResponse?.data) {
-        const customersData = Array.isArray(customersResponse.data)
+        customersData = Array.isArray(customersResponse.data)
           ? customersResponse.data
           : customersResponse.data?.users || customersResponse.data?.data || [];
 
         setCustomers(customersData);
+      }
+
+      // Xử lý activities từ orders và comments (Logic từ Updates.jsx)
+      if (ordersForRevenue.length > 0) {
+        // Sắp xếp orders theo thời gian mới nhất
+        const sortedOrders = [...ordersForRevenue].sort(
+          (a, b) =>
+            new Date(b.updatedAt || b.createdAt) -
+            new Date(a.updatedAt || a.createdAt)
+        );
+
+        // Lấy bình luận mới nhất từ products
+        let latestComment = null;
+        const products = Array.isArray(allProductsResponse.data?.data)
+          ? allProductsResponse.data.data
+          : [];
+
+        for (const product of products.slice(0, 10)) {
+          try {
+            const res = await getCommentsProduct(product._id);
+            const comments = Array.isArray(res.data?.data) ? res.data.data : [];
+            if (comments.length > 0) {
+              const newest = comments.reduce((a, b) =>
+                new Date(a.createdAt) > new Date(b.createdAt) ? a : b
+              );
+              if (
+                !latestComment ||
+                new Date(newest.createdAt) > new Date(latestComment.createdAt)
+              ) {
+                latestComment = { ...newest, product };
+              }
+            }
+          } catch (error) {
+            // Bỏ qua lỗi khi lấy comments
+          }
+        }
+
+        // Tạo activities từ orders và comments
+        const activitiesData = generateActivities(
+          sortedOrders,
+          customersData,
+          latestComment
+        );
+        setActivities(activitiesData);
+
+        // Tính doanh số theo category từ orders và products
+        const categoryMap = {};
+        // Sử dụng lại biến products đã khai báo ở trên
+
+        sortedOrders.forEach((order) => {
+          if (order.items && Array.isArray(order.items)) {
+            order.items.forEach((item) => {
+              const product = products.find(
+                (p) => p._id === item.productId || p._id === item.productId?._id
+              );
+              if (product && product.category) {
+                const categoryName =
+                  typeof product.category === "string"
+                    ? product.category
+                    : product.category.name || "Khác";
+
+                if (!categoryMap[categoryName]) {
+                  categoryMap[categoryName] = 0;
+                }
+                categoryMap[categoryName] += item.price * item.quantity;
+              }
+            });
+          }
+        });
+
+        // Convert to array và sort theo revenue
+        const categoryArray = Object.entries(categoryMap)
+          .map(([name, revenue]) => ({ name, revenue }))
+          .sort((a, b) => b.revenue - a.revenue);
+
+        setCategorySales(categoryArray);
       }
 
       // Nếu không có dữ liệu nào từ API, dùng fallback
@@ -340,199 +513,308 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
+      {/* Header với Welcome Message */}
       <div className="dashboard-header">
-        <h1>Bảng Điều Khiển</h1>
-        <p>Tổng quan hoạt động kinh doanh</p>
-      </div>
-
-      {/* Thống kê tổng quan */}
-      <div className="stats-grid">
-        <div className="stat-card stat-orders">
-          <div className="stat-icon">📦</div>
-          <div className="stat-content">
-            <h3>{stats.totalOrders}</h3>
-            <p>Tổng đơn hàng</p>
-          </div>
-        </div>
-
-        <div className="stat-card stat-revenue">
-          <div className="stat-icon">💰</div>
-          <div className="stat-content">
-            <h3>{formatCurrency(stats.totalRevenue)}</h3>
-            <p>Tổng doanh thu</p>
-          </div>
-        </div>
-
-        <div className="stat-card stat-customers">
-          <div className="stat-icon">👥</div>
-          <div className="stat-content">
-            <h3>{stats.totalUsers}</h3>
-            <p>Tổng khách hàng</p>
-          </div>
-        </div>
-
-        <div className="stat-card stat-products">
-          <div className="stat-icon">📱</div>
-          <div className="stat-content">
-            <h3>{stats.totalProducts}</h3>
-            <p>Tổng sản phẩm</p>
-          </div>
-        </div>
-
-        <div className="stat-card stat-pending">
-          <div className="stat-icon">⏳</div>
-          <div className="stat-content">
-            <h3>{stats.pendingOrders}</h3>
-            <p>Đơn hàng chờ xử lý</p>
-          </div>
+        <div>
+          <h1>Bảng điều khiển</h1>
+          <p>Chào mừng trở lại! Đây là tình hình hôm nay.</p>
         </div>
       </div>
 
-      <div className="dashboard-content">
-        {/* Đơn hàng gần đây */}
-        <div className="dashboard-section">
+      {/* Thống kê tổng quan - 4 cards */}
+      <div className="stats-grid-nexus">
+        <div className="stat-card-nexus stat-revenue">
+          <div className="stat-header-nexus">
+            <span className="stat-label">Tổng doanh thu</span>
+            <span className="stat-icon-nexus">💵</span>
+          </div>
+          <div className="stat-value">{formatCurrency(stats.totalRevenue)}</div>
+          <div className="stat-trend positive"></div>
+          <div className="stat-progress">
+            <div className="progress-bar revenue-bar"></div>
+          </div>
+        </div>
+
+        <div className="stat-card-nexus stat-users">
+          <div className="stat-header-nexus">
+            <span className="stat-label">Người dùng hoạt động</span>
+            <span className="stat-icon-nexus">👥</span>
+          </div>
+          <div className="stat-value">
+            {stats.totalUsers?.toLocaleString() || "8,549"}
+          </div>
+          <div className="stat-trend positive"></div>
+          <div className="stat-progress">
+            <div className="progress-bar users-bar"></div>
+          </div>
+        </div>
+
+        <div className="stat-card-nexus stat-orders">
+          <div className="stat-header-nexus">
+            <span className="stat-label">Tổng đơn hàng</span>
+            <span className="stat-icon-nexus">🛍</span>
+          </div>
+          <div className="stat-value">
+            {stats.totalOrders?.toLocaleString() || "2,847"}
+          </div>
+
+          <div className="stat-progress">
+            <div className="progress-bar orders-bar"></div>
+          </div>
+        </div>
+
+        <div className="stat-card-nexus stat-pageviews">
+          <div className="stat-header-nexus">
+            <span className="stat-label">Lượt xem trang</span>
+            <span className="stat-icon-nexus">👁️</span>
+          </div>
+          <div className="stat-value">45,892</div>
+
+          <div className="stat-progress">
+            <div className="progress-bar pageviews-bar"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* 2 cột: Revenue Overview và Sales by Category */}
+      <div className="dashboard-grid-2col">
+        {/* Revenue Overview - Chart */}
+        <div className="dashboard-section revenue-overview">
           <div className="section-header">
-            <h2>Đơn Hàng Gần Đây</h2>
-            <button className="btn-view-all">Xem tất cả</button>
+            <div>
+              <h2>Doanh thu theo tháng</h2>
+              <p className="section-subtitle">6 tháng gần nhất</p>
+            </div>
           </div>
-          <div className="recent-orders">
-            {recentOrders.length > 0 ? (
-              <div className="orders-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Mã đơn</th>
-                      <th>Tên khách hàng</th>
-                      <th>Tổng tiền</th>
-                      <th>Trạng thái</th>
-                      <th>Ngày đặt</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentOrders.map((order) => (
-                      <tr key={order._id}>
-                        <td>#{order._id.slice(-6)}</td>
-                        <td>{getCustomerDisplayName(order.customerId)}</td>
-                        <td>{formatCurrency(order.total)}</td>
-                        <td>
-                          <span
-                            className={`status ${getStatusClass(order.status)}`}
-                          >
-                            {getStatusText(order.status)}
-                          </span>
-                        </td>
-                        <td>
-                          {new Date(order.createdAt).toLocaleDateString(
-                            "vi-VN"
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+
+          <div className="revenue-chart">
+            {revenueData.length > 0 ? (
+              <div className="chart-container">
+                {revenueData.map((item, index) => {
+                  const maxRevenue = Math.max(
+                    ...revenueData.map((d) => d.revenue)
+                  );
+                  const barHeight =
+                    maxRevenue === 0
+                      ? 20
+                      : Math.max(5, (item.revenue / maxRevenue) * 200);
+
+                  const tooltipText = `${item.month}: ${formatCurrency(
+                    item.revenue
+                  )} (${item.orderCount} đơn hàng)`;
+
+                  return (
+                    <div
+                      key={`${item.month}-${index}`}
+                      className="chart-bar"
+                      data-tooltip={tooltipText}
+                      title={tooltipText}
+                    >
+                      <div
+                        className="bar"
+                        style={{
+                          height: `${barHeight}px`,
+                          minHeight: "5px",
+                        }}
+                      ></div>
+                      <div className="bar-label">
+                        <span className="month">{item.month}</span>
+                        <span className="amount">
+                          {formatCurrency(item.revenue)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div className="empty-state">
-                <p>Chưa có đơn hàng nào</p>
+                <p>Chưa có dữ liệu doanh thu</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Sales by Category - Pie Chart */}
+        <div className="dashboard-section sales-category">
+          <div className="section-header">
+            <div>
+              <h2>Doanh số theo danh mục</h2>
+              <p className="section-subtitle">Phân phối sản phẩm</p>
+            </div>
+          </div>
+
+          <div className="pie-chart-container">
+            {categorySales.length > 0 ? (
+              <>
+                <div className="pie-chart">
+                  <svg viewBox="0 0 100 100" className="donut">
+                    {(() => {
+                      const totalRevenue = categorySales.reduce(
+                        (sum, cat) => sum + cat.revenue,
+                        0
+                      );
+                      const colors = [
+                        "#667eea",
+                        "#8b5cf6",
+                        "#10b981",
+                        "#f59e0b",
+                        "#ef4444",
+                        "#06b6d4",
+                      ];
+                      const circumference = 2 * Math.PI * 40;
+                      let currentOffset = 0;
+
+                      return categorySales.slice(0, 6).map((cat, index) => {
+                        const percentage = (cat.revenue / totalRevenue) * 100;
+                        const dashArray = (percentage / 100) * circumference;
+                        const circle = (
+                          <circle
+                            key={cat.name}
+                            cx="50"
+                            cy="50"
+                            r="40"
+                            fill="none"
+                            stroke={colors[index % colors.length]}
+                            strokeWidth="20"
+                            strokeDasharray={`${dashArray} ${circumference}`}
+                            strokeDashoffset={-currentOffset}
+                            transform="rotate(-90 50 50)"
+                          ></circle>
+                        );
+                        currentOffset += dashArray;
+                        return circle;
+                      });
+                    })()}
+                  </svg>
+                </div>
+
+                <div className="category-legend">
+                  {(() => {
+                    const totalRevenue = categorySales.reduce(
+                      (sum, cat) => sum + cat.revenue,
+                      0
+                    );
+                    const colors = [
+                      "#667eea",
+                      "#8b5cf6",
+                      "#10b981",
+                      "#f59e0b",
+                      "#ef4444",
+                      "#06b6d4",
+                    ];
+
+                    return categorySales.slice(0, 6).map((cat, index) => {
+                      const percentage = (
+                        (cat.revenue / totalRevenue) *
+                        100
+                      ).toFixed(1);
+                      return (
+                        <div key={cat.name} className="legend-row">
+                          <span
+                            className="legend-dot"
+                            style={{
+                              background: colors[index % colors.length],
+                            }}
+                          ></span>
+                          <span className="legend-label">{cat.name}</span>
+                          <span className="legend-value">{percentage}%</span>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+              </>
+            ) : (
+              <div className="empty-state">
+                <p>Chưa có dữ liệu danh mục</p>
               </div>
             )}
           </div>
         </div>
       </div>
-      {/* Sản phẩm bán chạy */}
-      <div style={{ marginTop: 16 }} className="dashboard-section">
-        <div className="section-header">
-          <h2>Sản Phẩm Bán Chạy</h2>
+      {/* 2 sections: Recent Orders và Activity Feed */}
+      <div className="dashboard-grid-2col">
+        {/* Recent Orders */}
+        <div className="dashboard-section recent-orders-nexus">
+          <div className="section-header">
+            <h2>Đơn hàng gần đây</h2>
+            <button className="btn-view-all-nexus" onClick={onNavigateToOrders}>
+              Xem tất cả
+            </button>
+          </div>
+
+          <div className="orders-table-nexus">
+            {recentOrders.length > 0 ? (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Sản phẩm</th>
+                    <th>Số tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentOrders.slice(0, 5).map((order) => (
+                    <tr key={order._id}>
+                      <td>#{order._id.slice(-6)}</td>
+                      <td>{getCustomerDisplayName(order.customerId)}</td>
+                      <td>Sản phẩm</td>
+                      <td>{formatCurrency(order.total)}</td>
+                      <td>
+                        <span
+                          className={`status-badge-nexus ${getStatusClass(
+                            order.status
+                          )}`}
+                        >
+                          {getStatusText(order.status)}
+                        </span>
+                      </td>
+                      <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="empty-state">
+                <p>Chưa có đơn hàng</p>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="top-products">
-          {topProducts.length > 0 ? (
-            <div className="products-list">
-              {topProducts.map((item, index) => (
-                <div key={item._id} className="product-item">
-                  <div className="product-rank">{index + 1}</div>
-                  <div className="product-image">
-                    {item.product &&
-                    Array.isArray(item.product.images) &&
-                    item.product.images.length > 0 ? (
-                      <img src={getImageProduct(item.product.images[0])} />
-                    ) : (
-                      <img
-                        src={getImageProduct("/images/default.png")}
-                        alt="No image"
-                      />
-                    )}
+
+        {/* Activity Feed */}
+        <div className="dashboard-section activity-feed">
+          <div className="section-header">
+            <h2>Hoạt động gần đây</h2>
+          </div>
+
+          <div className="activity-list">
+            {activities.length === 0 ? (
+              <div className="no-activities">
+                <span>Không có hoạt động nào</span>
+              </div>
+            ) : (
+              activities.map((activity) => (
+                <div className="activity-item" key={activity.id}>
+                  <div className={`activity-icon ${activity.iconClass}`}>
+                    {activity.icon}
                   </div>
-                  <div className="product-info">
-                    <h4>{item.product?.name || "Sản phẩm không xác định"}</h4>
-                    <p>Đã bán: {item.totalQuantity || 0} sản phẩm</p>
-                    <span
-                      className="product-price"
-                      title="Tổng doanh thu từ sản phẩm này"
-                    >
-                      {formatCurrency(item.totalRevenue || 0)}
+                  <div className="activity-content">
+                    <p className="activity-text">
+                      <strong>{activity.text}</strong>
+                    </p>
+                    <span className="activity-time">
+                      {formatTimeAgo(activity.time)}
                     </span>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-state">
-              <p>Chưa có dữ liệu sản phẩm</p>
-            </div>
-          )}
-        </div>
-      </div>
-      {/* Biểu đồ doanh thu */}
-      <div className="dashboard-section full-width">
-        <div className="section-header">
-          <h2>Doanh Thu Theo Tháng</h2>
-        </div>
-
-        <div className="revenue-chart">
-          {revenueData.length > 0 ? (
-            <div className="chart-container">
-              {revenueData.map((item, index) => {
-                const maxRevenue = Math.max(
-                  ...revenueData.map((d) => d.revenue)
-                );
-                const barHeight =
-                  maxRevenue === 0
-                    ? 20
-                    : Math.max(5, (item.revenue / maxRevenue) * 200);
-
-                const tooltipText = `${item.month}: ${formatCurrency(
-                  item.revenue
-                )} (${item.orderCount} đơn hàng)`;
-
-                return (
-                  <div
-                    key={`${item.month}-${index}`}
-                    className="chart-bar"
-                    data-tooltip={tooltipText}
-                    title={tooltipText}
-                  >
-                    <div
-                      className="bar"
-                      style={{
-                        height: `${barHeight}px`,
-                        minHeight: "5px",
-                      }}
-                    ></div>
-                    <div className="bar-label">
-                      <span className="month">{item.month}</span>
-                      <span className="amount">
-                        {formatCurrency(item.revenue)}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="empty-state">
-              <p>Chưa có dữ liệu doanh thu</p>
-            </div>
-          )}
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>

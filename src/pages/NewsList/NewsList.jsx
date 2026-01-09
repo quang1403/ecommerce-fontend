@@ -10,8 +10,19 @@ const NewsList = () => {
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const [tag, setTag] = useState("");
   const [pagination, setPagination] = useState({ totalPages: 1 });
+
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1); // Reset về trang 1 khi tìm kiếm
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -36,12 +47,24 @@ const NewsList = () => {
   return (
     <div className="news-list-container">
       <h2>Tin tức công nghệ</h2>
-      <input
-        type="text"
-        placeholder="Tìm kiếm..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <div className="search-container">
+        <input
+          type="text"
+          placeholder="Tìm kiếm tin tức..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          className="search-input"
+        />
+        {searchInput && (
+          <button
+            className="clear-search"
+            onClick={() => setSearchInput("")}
+            title="Xóa tìm kiếm"
+          >
+            ✕
+          </button>
+        )}
+      </div>
       {/* Bộ lọc tag nếu có */}
       {/* <select value={tag} onChange={e => setTag(e.target.value)}>
         <option value="">Tất cả tag</option>

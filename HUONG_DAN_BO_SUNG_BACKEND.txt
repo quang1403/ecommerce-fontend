@@ -1,0 +1,402 @@
+================================================================
+HƯỚNG DẪN BỔ SUNG BACKEND - PHÂN BIỆT KHÁCH ĐÃ MUA HÀNG
+================================================================
+
+⚠️ LƯU Ý QUAN TRỌNG:
+--------------------
+- Hệ thống BẮT BUỘC phải đăng nhập mới được bình luận
+- TẤT CẢ comments đều có userId (không có khách vãng lai)
+- Cần phân biệt: User đã mua hàng vs User chưa mua hàng
+
+MỤC ĐÍCH:
+---------
+Thêm field "hasPurchased" vào response của comments API để Frontend có thể
+hiển thị badge "Đã mua hàng tại PS" CHỈ cho khách hàng đã đăng nhập VÀ đã 
+mua sản phẩm đó thành công.
+
+
+================================================================
+BƯỚC 1: CẬP NHẬT API LẤY DANH SÁCH COMMENTS
+================================================================
+
+File cần sửa: Backend API Controller xử lý GET /comments/:productId
+
+Ví dụ code Node.js + MongoDB:
+------------------------------
+
+// comments.controller.js hoặc tương tự
+
+exports.getCommentsByProduct = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    
+    // Lấy danh sách comments và populate thông tin user
+    const comments = await Comment.find({ productId })
+      .populate('userId', 'fullName name email')
+      .sort({ createdAt: -1 })
+      .lean();
+    
+    // Thêm thông tin hasPurchased cho mỗi comment
+    // ⚠️ VÌ BẮT BUỘC ĐĂNG NHẬP MỚI COMMENT, NÊN TẤT CẢ ĐỀU CÓ userId
+    const commentsWithPurchaseStatus = await Promise.all(
+      comments.map(async (comment) => {
+        // Kiểm tra user này có đơn hàng hoàn thành với sản phẩm này không
+        const purchaseExists = await Order.exists({
+          customerId: comment.userId._id || comment.userId,
+          status: { $in: [3, 4] }, // 3 = Đã giao, 4 = Hoàn thành (tùy theo status code của bạn)
+          'items.productId': productId
+        });
+        
+        return {
+          ...comment,
+          hasPurchased: !!purchaseExists
+        };
+      })
+    );
+    
+    res.status(200).json({
+      success: true,
+      data: commentsWithPurchaseStatus
+    });
+    
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi khi lấy danh sách bình luận',
+      error: error.message
+    });
+  }
+};
+
+
+================================================================
+BƯỚC 2: TỐI ƯU HÓA PERFORMANCE (QUAN TRỌNG!)
+================================================================
+
+Cách trên có thể chậm nếu có nhiều comments. Giải pháp tối ưu:
+
+CÁCH 1: Sử dụng aggregation pipeline
+-------------------------------------
+
+exports.getCommentsByProduct = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    
+    const comments = await Comment.aggregate([
+      // Match comments của sản phẩm
+      { $match: { productId: mongoose.Types.ObjectId(productId) } },
+      
+      // Lookup thông tin user
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+      
+      // Lookup kiểm tra đơn hàng
+      {
+        $lookup: {
+          from: 'orders',
+          let: { userId: '$userId', prodId: productId },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$customerId', '$$userId'] },
+                    { $in: ['$status', [3, 4]] },
+                    {
+                      $gt: [
+                        {
+                          $size: {
+                            $filter: {
+                              input: '$items',
+                              as: 'item',
+                              cond: { $eq: ['$$item.productId', '$$prodId'] }
+                            }
+                          }
+                        },
+                        0
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            { $limit: 1 }
+          ],
+          as: 'purchases'
+        }
+      },
+      
+      // Thêm field hasPurchased
+      {
+        $addFields: {
+          hasPurchased: { $gt: [{ $size: '$purchases' }, 0] }
+        }
+      },
+      
+      // Loại bỏ field không cần thiết
+      { $project: { purchases: 0 } },
+      
+      // Sắp xếp
+      { $sort: { createdAt: -1 } }
+    ]);
+    
+    res.status(200).json({
+      success: true,
+      data: comments
+    });
+    
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi khi lấy danh sách bình luận'
+    });
+  }
+};
+
+
+CÁCH 2: Thêm field hasPurchased trực tiếp vào Comment Model
+------------------------------------------------------------
+
+Khi user tạo comment, kiểm tra và lưu luôn:
+
+// Khi tạo comment mới
+exports.createComment = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const userId = req.user._id; // Từ middleware auth
+    
+    // Kiểm tra user đã mua sản phẩm này chưa
+    const hasPurchased = await Order.exists({
+      customerId: userId,
+      status: { $in: [3, 4] },
+      'items.productId': productId
+    });
+    
+    const comment = await Comment.create({
+      ...req.body,
+      productId,
+      userId,
+      hasPurchased: !!hasPurchased
+    });
+    
+    res.status(201).json({
+      success: true,
+      data: comment
+    });
+    
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi khi tạo bình luận'
+    });
+  }
+};
+
+// Cần thêm field vào Comment Schema:
+const commentSchema = new Schema({
+  // ... các field khác
+  hasPurchased: {
+    type: Boolean,
+    default: false
+  }
+});
+
+
+================================================================
+BƯỚC 3: CẤU TRÚC RESPONSE CẦN TRẢ VỀ
+================================================================
+
+Frontend đang expect response như sau:
+
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "comment_id_123",
+⚠️ LƯU Ý: TẤT CẢ comments đều có userId vì bắt buộc đăng nhập
+
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "comment_id_123",
+      "content": "Sản phẩm rất tốt, đã dùng 2 tuần rồi",
+      "rating": 5,
+      "userId": "user_id_456",
+      "user": {
+        "_id": "user_id_456",
+        "fullName": "Nguyễn Văn A",
+        "email": "user@example.com"
+      },
+      "hasPurchased": true,  ← User này ĐÃ MUA sản phẩm → Hiển thị badge
+      "createdAt": "2026-01-09T10:00:00Z",
+      "updatedAt": "2026-01-09T10:00:00Z"
+    },
+    {
+      "_id": "comment_id_789",
+      "content": "Có ai dùng sản phẩm này chưa, cho xin review",
+      "rating": 4,
+      "userId": "user_id_789",
+      "user": {
+        "_id": "user_id_789",
+        "fullName": "Trần Thị B",
+        "email": "user2@example.com"
+      },
+      "hasPurchased": false,  ← User này CHƯA MUA → Không hiển thị badg
+
+================================================================
+BƯỚC 4: MAPPING STATUS ĐỐN HÀNG
+================================================================
+
+Cần xác định status code nào được coi là "đã mua thành công":
+
+Ví dụ status code trong hệ thống:
+- 0 hoặc "pending" = Chờ xác nhận
+- 1 hoặc "confirmed" = Đã xác nhận
+- 2 hoặc "shipping" = Đang giao
+- 3 hoặc "delivered" = Đã giao
+- 4 hoặc "completed" = Hoàn thành
+- -1 hoặc "cancelled" = Đã hủy
+
+⚠️ Chỉ tính là "đã mua" khi status là:
+   - "delivered" (Đã giao)
+   - "completed" (Hoàn thành)
+
+❌ KHÔNG tính các trạng thái:
+   - pending, confirmed, shipping (chưa nhận hàng)
+   - cancelled (đã hủy)
+
+
+================================================================
+BƯỚC 5: CẬP NHẬT FRONTEND
+================================================================
+
+Sau khi backend đã trả về field "hasPurchased", cập nhật Frontend:
+
+File: src/pages/ProductDetails/ModernProductDetails.js
+
+Thay đổi từ:
+------------
+const isVerifiedCustomer = !!(comment.userId || comment.user?._id);
+
+Thành:
+------
+const isVerifiedCustomer = comment.hasPurchased === true;
+
+⚠️ Tất cả test đều với user ĐÃ ĐĂNG NHẬP (vì bắt buộc phải đăng nhập)
+
+Các test case cần kiểm tra:
+
+✓ Test 1: User đã mua sản phẩm này + đơn hàng đã hoàn thành
+  → hasPurchased = true
+  → Hiển thị badge "Đã mua hàng tại PS" ✅
+
+✓ Test 2: User chưa mua sản phẩm này
+  → hasPurchased = false
+  → KHÔNG hiển thị badge ❌
+
+✓ Test 3: User đã đặt hàng nhưng đơn hàng chưa hoàn thành (đang giao)
+  → hasPurchased = false
+  → KHÔNG hiển thị badge ❌
+
+✓ Test 4: User đã đặt hàng nhưng đơn hàng đã bị hủy
+  → hasPurchased = false
+  → KHÔNG hiển thị badge ❌
+
+✓ Test 5: User mua sản phẩm A nhưng đánh giá sản phẩm B
+  → hasPurchased = false (cho sản phẩm B)
+  → KHÔNG hiển thị badge ❌
+
+✓ Test 6: User mua nhiều lần cùng 1 sản phẩm
+  → hasPurchased = true (chỉ cần có 1 đơn hoàn thành)
+  → Hiển thị badge ✅
+OGIC NGHIỆP VỤ
+================================================================
+
+QUAN TRỌNG - Hiểu rõ luồng hoạt động:
+
+1. User phải ĐĂNG NHẬP mới được viết bình luận
+   → Tất cả comments đều có userId
+
+2. Khi user viết bình luận:
+   - Nếu user ĐÃ MUA và nhận được sản phẩm này (status = Đã giao/Hoàn thành)
+     → Badge "Đã mua hàng tại PS" xuất hiện ✅
+   
+   - Nếu user CHƯA MUA hoặc đơn hàng chưa hoàn thành
+     → Không có badge, chỉ hiển thị tên user ⚪
+
+3. Mục đích:
+   - Tăng độ tin cậy cho đánh giá từ khách hàng thực sự đã sử dụng
+   - Người xem có thể phân biệt đánh giá thực tế vs đánh giá chung chung
+   - Khuyến khích khách mua hàng để có badge (marketing)
+
+
+================================================================
+L
+✓ Test 7: User vừa mua xong, đơn vừa chuyển sang trạng thái "Đã giao"
+  → hasPurchased = true
+  → Hiển thị badge ✅
+✓ Test 5: Khách vãng lai (không đăng nhập)
+  → KHÔNG hiển thị badge
+
+✓ Test 6: User mua sản phẩm A nhưng đánh giá sản phẩm B
+  → KHÔNG hiển thị badge
+
+
+================================================================
+LƯU Ý QUAN TRỌNG
+================================================================
+
+1. PERFORMANCE: Nếu có nhiều comments, nên:
+   - Dùng aggregation pipeline (CÁCH 1)
+   - HOẶC lưu hasPurchased vào DB khi tạo comment (CÁCH 2)
+   - Tránh dùng loop với nhiều query
+
+2. CACHE: Có thể cache kết quả kiểm tra hasPurchased
+   - Cache 5-10 phút cho mỗi user-product pair
+   - Xóa cache khi có đơn hàng mới hoàn thành
+
+3. INDEX: Đảm bảo có index trên:
+   - Order: { customerId: 1, status: 1 }
+   - Order: { 'items.productId': 1 }
+   - Comment: { productId: 1, createdAt: -1 }
+
+4. SECURITY: 
+   - Validate productId là ObjectId hợp lệ
+   - Không cho phép fake hasPurchased từ client
+
+
+================================================================
+ĐỊA CHỈ FILE CẦN SỬA
+================================================================
+
+Backend:
+--------
+- Controller: /controllers/comments.controller.js (hoặc tương tự)
+- Model: /models/comment.model.js (nếu dùng CÁCH 2)
+- Route: /routes/comments.routes.js (nếu cần)
+
+Frontend:
+---------
+- File: src/pages/ProductDetails/ModernProductDetails.js
+- Dòng cần sửa: ~1180 (tìm dòng: const isVerifiedCustomer)
+
+
+================================================================
+HỖ TRỢ
+================================================================
+
+Nếu gặp vấn đề:
+1. Kiểm tra response API bằng Postman/Thunder Client
+2. Console.log để xem comment object có field hasPurchased chưa
+3. Verify Order schema có đúng cấu trúc items.productId không
+4. Check status code mapping có đúng không
+
+================================================================

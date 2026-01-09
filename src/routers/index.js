@@ -14,6 +14,7 @@ import Payment from "../pages/Payment";
 import UserEdit from "../pages/UserEdit";
 import AdminLayout from "../pages/Admin/components/AdminLayout";
 import CustomerList from "../pages/Admin/components/CustomerList";
+import SliderManagement from "../pages/Admin/components/SliderManagement";
 import RequireAdmin from "../shared/AuthRequired/RequireAdmin";
 import OrderList from "../pages/OrderList";
 import Deals from "../pages/Deals";
@@ -30,6 +31,7 @@ import Shipping from "../pages/Legal/Shipping";
 import PaymentGuide from "../pages/Legal/PaymentGuide";
 import ForgotPassword from "../pages/Auth/ForgotPassword";
 import ResetPassword from "../pages/Auth/ResetPassword";
+import AuthGoogleSuccess from "../pages/Auth/AuthGoogleSuccess";
 import InstallmentPage from "../pages/Installment";
 export default [
   {
@@ -77,6 +79,10 @@ export default [
     element: AuthRequired.CheckLogged(ResetPassword),
   },
   {
+    path: "/auth/google/success",
+    element: AuthGoogleSuccess,
+  },
+  {
     path: "/OrderList",
     element: AuthRequired.RequireAuth(OrderList),
   },
@@ -99,6 +105,10 @@ export default [
   {
     path: "/admin/customers",
     element: RequireAdmin(CustomerList),
+  },
+  {
+    path: "/admin/sliders",
+    element: RequireAdmin(SliderManagement),
   },
   {
     path: "/deals",

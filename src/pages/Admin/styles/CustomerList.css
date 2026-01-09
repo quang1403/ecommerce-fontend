@@ -83,16 +83,69 @@
   gap: 12px;
   margin-top: 18px;
 }
+
+@media (max-width: 768px) {
+  .CustomerList {
+    padding: 12px;
+  }
+
+  .CustomerList h2 {
+    font-size: 1.25rem;
+  }
+
+  .CustomerList table {
+    font-size: 0.85rem;
+  }
+
+  .CustomerList table th,
+  .CustomerList table td {
+    padding: 8px 6px;
+  }
+
+  .drawer-panel {
+    width: 95%;
+    padding: 16px;
+  }
+}
+
 @media (max-width: 600px) {
   .drawer-panel {
     width: 100vw;
     padding: 12px;
   }
+
   .CustomerList {
     padding: 8px;
   }
+
   .CustomerList table th,
   .CustomerList table td {
     padding: 6px 4px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .CustomerList {
+    padding: 8px;
+  }
+
+  .CustomerList h2 {
+    font-size: 1.1rem;
+  }
+
+  .CustomerList table th,
+  .CustomerList table td {
+    padding: 4px 2px;
+    font-size: 0.7rem;
+  }
+
+  .drawer-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .drawer-actions button {
+    width: 100%;
   }
 }

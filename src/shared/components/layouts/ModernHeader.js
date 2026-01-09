@@ -116,18 +116,55 @@ const ModernHeader = () => {
               const daysDiff = (new Date() - orderDate) / (1000 * 60 * 60 * 24);
               return daysDiff <= 7; // Show notifications for orders from last 7 days
             })
-            .map((order) => ({
-              id: order._id,
-              title: getNotificationTitle(order.status),
-              message: `Đơn hàng ${order._id.substring(
-                0,
-                8
-              )}... - ${formatPrice(order.totalPrice || order.total)}`,
-              status: order.status,
-              createdAt: order.updatedAt || order.createdAt,
-              read: false,
-              orderId: order._id,
-            }))
+            .map((order) => {
+              // Check if this is an installment order with finance status
+              if (
+                order.installment?.isInstallment &&
+                order.installment?.financeStatus
+              ) {
+                const financeStatus = order.installment.financeStatus;
+                let message = `Đơn hàng trả góp ${order._id.substring(
+                  0,
+                  8
+                )}...`;
+
+                if (financeStatus === "approved") {
+                  message +=
+                    " - Hồ sơ đã được duyệt. Vui lòng theo dõi đơn hàng để biết thêm chi tiết.";
+                } else if (financeStatus === "rejected") {
+                  message +=
+                    " - Hồ sơ bị từ chối. Vui lòng kiểm tra lại thông tin hoặc liên hệ hỗ trợ.";
+                } else {
+                  message += " - Đang chờ xét duyệt từ bộ phận tài chính.";
+                }
+
+                return {
+                  id: order._id,
+                  title: getInstallmentNotificationTitle(financeStatus),
+                  message: message,
+                  status: financeStatus,
+                  type: "installment",
+                  createdAt: order.updatedAt || order.createdAt,
+                  read: false,
+                  orderId: order._id,
+                };
+              }
+
+              // Regular order notification
+              return {
+                id: order._id,
+                title: getNotificationTitle(order.status),
+                message: `Đơn hàng ${order._id.substring(
+                  0,
+                  8
+                )}... - ${formatPrice(order.totalPrice || order.total)}`,
+                status: order.status,
+                type: "order",
+                createdAt: order.updatedAt || order.createdAt,
+                read: false,
+                orderId: order._id,
+              };
+            })
             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
           setNotifications(orderNotifications);
@@ -161,11 +198,39 @@ const ModernHeader = () => {
     }
   };
 
+  const getInstallmentNotificationTitle = (financeStatus) => {
+    switch (financeStatus) {
+      case "pending":
+        return "Hồ sơ trả góp đang chờ duyệt";
+      case "approved":
+        return "✅ Hồ sơ trả góp đã được duyệt";
+      case "rejected":
+        return "❌ Hồ sơ trả góp bị từ chối";
+      default:
+        return "Cập nhật hồ sơ trả góp";
+    }
+  };
+
   const formatPrice = (price) => {
     return price ? `${price.toLocaleString()}đ` : "0đ";
   };
 
-  const getNotificationIcon = (status) => {
+  const getNotificationIcon = (status, type) => {
+    // For installment notifications
+    if (type === "installment") {
+      switch (status) {
+        case "pending":
+          return "fas fa-clock";
+        case "approved":
+          return "fas fa-check-circle";
+        case "rejected":
+          return "fas fa-times-circle";
+        default:
+          return "fas fa-credit-card";
+      }
+    }
+
+    // For regular order notifications
     switch (status) {
       case 0:
         return "fas fa-clock";
@@ -388,7 +453,8 @@ const ModernHeader = () => {
                             <div className="notification-icon">
                               <i
                                 className={getNotificationIcon(
-                                  notification.status
+                                  notification.status,
+                                  notification.type
                                 )}
                               ></i>
                             </div>
@@ -558,7 +624,7 @@ const ModernHeader = () => {
                               )}`}
                               className="category-link view-all"
                             >
-                              <i className="fas fa-th-large"></i>
+                              <i class="fa fa-th-large" aria-hidden="true"></i>
                               Xem tất cả điện thoại
                             </Link>
                           </li>
@@ -595,15 +661,63 @@ const ModernHeader = () => {
                 </div>
               </div>
 
-              {/* Tablet category - only render when categories are loaded */}
+              {/* Tablet category dropdown - similar to phone */}
               {categoriesLoaded && getCategoryId("Máy tính bảng") && (
-                <Link
-                  to={`/products?category=${getCategoryId("Máy tính bảng")}`}
-                  className="category-btn"
-                >
-                  <i className="fas fa-tablet-alt"></i>
-                  <span>Máy tính bảng</span>
-                </Link>
+                <div className="category-dropdown">
+                  <button className="category-btn">
+                    <i className="fas fa-tablet-alt"></i>
+                    <span>Máy tính bảng</span>
+                    <i className="fas fa-chevron-down"></i>
+                  </button>
+                  <div className="category-mega-menu">
+                    <div className="mega-menu-content grouped simple-text">
+                      {/* Nhóm Máy tính bảng */}
+                      <div className="category-group">
+                        <div className="group-title">Máy tính bảng</div>
+                        <ul className="category-list">
+                          {/* Nút Xem tất cả */}
+                          <li>
+                            <Link
+                              to={`/products?category=${getCategoryId(
+                                "Máy tính bảng"
+                              )}`}
+                              className="category-link view-all"
+                            >
+                              <i className="fas fa-th-large"></i>
+                              Xem tất cả máy tính bảng
+                            </Link>
+                          </li>
+                          {brands
+                            .filter((b) =>
+                              [
+                                "Apple",
+                                "Samsung",
+                                "Xiaomi",
+                                "Lenovo",
+                                "Huawei",
+                                "Oppo",
+                                "Nokia",
+                              ].includes(b.name)
+                            )
+                            .map((brand) => (
+                              <li key={brand._id}>
+                                <Link
+                                  to={`/category/${
+                                    brand._id
+                                  }?categoryId=${getCategoryId(
+                                    "Máy tính bảng"
+                                  )}`}
+                                  className="category-link"
+                                >
+                                  {brand.name}
+                                </Link>
+                              </li>
+                            ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               )}
 
               {/* Accessory category - only render when categories are loaded */}
@@ -626,7 +740,6 @@ const ModernHeader = () => {
             {/* Hotline */}
             <div className="nav-hotline">
               <div className="hotline-content">
-                
                 <div className="hotline-text">
                   <span className="hotline-label">Hotline</span>
                   <span className="hotline-number">1900 1234</span>

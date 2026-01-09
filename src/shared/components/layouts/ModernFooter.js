@@ -261,7 +261,7 @@ const ModernFooter = () => {
             <div className="copyright">
               <p>© {currentYear} PhoneStore. Tất cả quyền được bảo lưu.</p>
               <p>
-                Giấy CNĐKDN: 0123456789 do Sở KH&ĐT TP.HCM cấp ngày 01/01/2020
+                Giấy CNĐKDN: 0123456789 do Sở KH&ĐT TP.Hà Nội cấp ngày 01/01/2020
               </p>
             </div>
 

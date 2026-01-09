@@ -43,6 +43,7 @@ const StarRating = ({
           style={interactive ? { cursor: "pointer" } : {}}
         ></i>
       ))}
+      {showCount && <span className="rating-count">({count} đánh giá)</span>}
     </div>
   );
 };
@@ -168,31 +169,19 @@ const ModernProductDetails = () => {
 
       setLoadingColors(true);
       try {
-        const response = await axios.get(
-          `${BASE_API}/products/${product._id}/color-variants`
-        );
+        const response = await getProductVariants(product._id);
+        const variantsData = response.data?.data || [];
+        setColorVariants(variantsData);
 
-        if (response.data.success) {
-          const { variants, defaultImages } = response.data.data;
-          setColorVariants(variants || []);
-
-          // Tự động chọn variant đầu tiên có stock > 0, hoặc variant đầu tiên
-          if (variants && variants.length > 0) {
-            const firstAvailableVariant =
-              variants.find((v) => v.stock > 0) || variants[0];
-            setSelectedColorVariant(firstAvailableVariant);
-            setCurrentImages(firstAvailableVariant.images || []);
-          } else {
-            setSelectedColorVariant(null);
-            // Use defaultImages or product images as fallback
-            setCurrentImages(defaultImages || product.images || []);
-          }
+        if (variantsData.length > 0) {
+          const firstAvailableVariant =
+            variantsData.find((v) => v.stock > 0) || variantsData[0];
+          setSelectedColorVariant(firstAvailableVariant);
+          setCurrentImages(firstAvailableVariant.images || []);
         }
       } catch (error) {
         console.error("Error fetching color variants:", error);
         setColorVariants([]);
-        // Fallback to product images
-        setCurrentImages(product.images || []);
       } finally {
         setLoadingColors(false);
       }
@@ -243,23 +232,6 @@ const ModernProductDetails = () => {
     fetchComments();
   }, [id]);
 
-  const maskEmail = (email) => {
-    if (!email) return "email@example.com";
-    const [localPart, domain] = email.split("@");
-    if (!localPart || !domain) return email;
-
-    const visibleStart = Math.min(3, Math.floor(localPart.length * 0.3));
-    const visibleEnd = Math.min(2, Math.floor(localPart.length * 0.2));
-    const maskedLength = localPart.length - visibleStart - visibleEnd;
-
-    const maskedLocal =
-      localPart.substring(0, visibleStart) +
-      "*".repeat(Math.max(4, maskedLength)) +
-      localPart.substring(localPart.length - visibleEnd);
-
-    return `${maskedLocal}@${domain}`;
-  };
-
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -295,10 +267,8 @@ const ModernProductDetails = () => {
   };
 
   const clickAddToCart = async (type) => {
-    // Kiểm tra đủ trường trước khi thêm vào giỏ
     const fields = [];
 
-    // Chỉ require màu cho điện thoại, tai nghe không bắt buộc
     if (!isHeadphoneProduct() && !selectedColorVariant) {
       fields.push("color");
     }
@@ -313,7 +283,6 @@ const ModernProductDetails = () => {
       return;
     }
 
-    // Check stock - chỉ check nếu đã chọn màu và không phải tai nghe
     if (
       !isHeadphoneProduct() &&
       selectedColorVariant &&
@@ -324,78 +293,39 @@ const ModernProductDetails = () => {
     }
 
     try {
-      const cartData = {
-        productId: id,
+      const variantInfo = isHeadphoneProduct()
+        ? {
+            color: selectedColorVariant?.color || "Default",
+            colorVariantId: selectedColorVariant?._id,
+          }
+        : {
+            storage: selectedVariant.storage,
+            color: selectedColorVariant?.color || "Default",
+            colorVariantId: selectedColorVariant?._id,
+            condition: selectedVariant.condition,
+            ram: selectedVariant.ram,
+          };
+
+      const productData = {
+        productId: product._id,
         quantity: 1,
+        variant: variantInfo,
         price: calculateFinalPrice(),
       };
 
-      // Thêm thông tin màu nếu đã chọn
-      if (selectedColorVariant) {
-        cartData.colorVariantId = selectedColorVariant._id;
-        cartData.color = selectedColorVariant.color;
-      }
-
-      // Add appropriate variant data based on product type
-      if (isHeadphoneProduct()) {
-        if (selectedColorVariant) {
-          cartData.variant = {
-            color: selectedColorVariant.color,
-            colorVariantId: selectedColorVariant._id,
-            price: calculateFinalPrice(),
-          };
-        } else {
-          // Không có màu, chỉ có giá
-          cartData.variant = {
-            price: calculateFinalPrice(),
-          };
-        }
+      if (isLoggedIn) {
+        await addToCart(productData);
+        const cartResponse = await getCartByToken();
+        dispatch(setCart(cartResponse.data.data));
       } else {
-        // Nếu chọn mặc định, lưu thông tin RAM và storage cụ thể từ specs của sản phẩm
-        if (selectedVariant.storage === "default") {
-          const defaultRam = product.ram || "4"; // Lấy RAM mặc định từ specs
-          const defaultStorage = product.storage || "128"; // Lấy storage mặc định từ specs
-          cartData.storage = `${defaultStorage}GB`;
-          cartData.ram = `${defaultRam}GB`;
-          cartData.variant = {
-            ram: `${defaultRam}GB`,
-            storage: `${defaultStorage}GB`,
-            color: selectedColorVariant.color,
-            colorVariantId: selectedColorVariant._id,
-            condition: selectedVariant.condition,
-            price: calculateFinalPrice(),
-            isDefault: true, // Đánh dấu đây là cấu hình mặc định
-          };
-        } else {
-          cartData.storage = selectedVariant.storage;
-          cartData.ram = selectedVariant.ram;
-          cartData.variant = {
-            ram: selectedVariant.ram,
-            storage: selectedVariant.storage,
-            color: selectedColorVariant.color,
-            colorVariantId: selectedColorVariant._id,
-            condition: selectedVariant.condition,
-            price: calculateFinalPrice(),
-          };
-        }
+        let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        cart.push(productData);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        dispatch(setCart(cart));
       }
-
-      await addToCart(cartData);
-      const res = await getCartByToken();
-      dispatch(
-        setCart(
-          (res.data.items || []).map((item) => ({
-            _id: item._id,
-            productId: item.productId,
-            quantity: Number(item.quantity),
-            price: item.price, // luôn lưu giá đã tính theo variant
-          }))
-        )
-      );
 
       if (type === "buy-now") {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        return navigate("/cart");
+        navigate("/cart");
       } else {
         alert("Đã thêm sản phẩm vào giỏ hàng!");
       }
@@ -723,6 +653,32 @@ const ModernProductDetails = () => {
                         ))}
                       </div>
                     </div>
+
+                    <div className="product-details-variant-group">
+                      <label className="product-details-variant-label">
+                        Tình trạng:
+                      </label>
+                      <div className="product-details-condition-options">
+                        {productVariants.conditions.map((condition) => (
+                          <button
+                            key={condition.value}
+                            className={`product-details-condition-option ${
+                              selectedVariant.condition === condition.value
+                                ? "active"
+                                : ""
+                            }`}
+                            onClick={() =>
+                              setSelectedVariant({
+                                ...selectedVariant,
+                                condition: condition.value,
+                              })
+                            }
+                          >
+                            <span>{condition.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </>
                 )}
               </div>
@@ -827,153 +783,34 @@ const ModernProductDetails = () => {
               </h3>
               <table className="specs-table-compact">
                 <tbody>
-                  {isHeadphoneProduct() ? (
-                    // Thông số cho tai nghe
-                    <>
-                      {product.specs?.connectionType && (
-                        <tr>
-                          <td>Loại kết nối</td>
-                          <td>{product.specs.connectionType}</td>
-                        </tr>
-                      )}
-                      {product.specs?.driverSize && (
-                        <tr>
-                          <td>Kích thước Driver</td>
-                          <td>{product.specs.driverSize}mm</td>
-                        </tr>
-                      )}
-                      {product.specs?.frequency && (
-                        <tr>
-                          <td>Dải tần số</td>
-                          <td>{product.specs.frequency}</td>
-                        </tr>
-                      )}
-                      {product.specs?.impedance && (
-                        <tr>
-                          <td>Trở kháng</td>
-                          <td>{product.specs.impedance} Ohm</td>
-                        </tr>
-                      )}
-                      {product.specs?.microphoneType && (
-                        <tr>
-                          <td>Loại microphone</td>
-                          <td>{product.specs.microphoneType}</td>
-                        </tr>
-                      )}
-                      {product.specs?.batteryLife && (
-                        <tr>
-                          <td>Thời lượng pin</td>
-                          <td>{product.specs.batteryLife} giờ</td>
-                        </tr>
-                      )}
-                      {showFullSpecs && (
-                        <>
-                          {product.specs?.chargingTime && (
-                            <tr>
-                              <td>Thời gian sạc</td>
-                              <td>{product.specs.chargingTime} giờ</td>
-                            </tr>
-                          )}
-                          {product.specs?.waterResistance && (
-                            <tr>
-                              <td>Chống nước</td>
-                              <td>{product.specs.waterResistance}</td>
-                            </tr>
-                          )}
-                          {product.specs?.weight && (
-                            <tr>
-                              <td>Trọng lượng</td>
-                              <td>{product.specs.weight}g</td>
-                            </tr>
-                          )}
-                          {product.specs?.noiseReduction && (
-                            <tr>
-                              <td>Chống ồn</td>
-                              <td>{product.specs.noiseReduction}</td>
-                            </tr>
-                          )}
-                        </>
-                      )}
-                    </>
-                  ) : (
-                    // Thông số cho điện thoại
-                    <>
-                      <tr>
-                        <td>Màn hình</td>
-                        <td>
-                          {product.displaySize}" {product.displayType || "OLED"}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>CPU</td>
-                        <td>{product.chipset || "Apple A15"}</td>
-                      </tr>
-                      <tr>
-                        <td>RAM</td>
-                        <td>{product.ram || "4"}GB</td>
-                      </tr>
-                      <tr>
-                        <td>Bộ nhớ</td>
-                        <td>{product.storage || "128"}GB</td>
-                      </tr>
-                      <tr>
-                        <td>Camera sau</td>
-                        <td>{product.cameraRear || "12MP"}</td>
-                      </tr>
-                      <tr>
-                        <td>Pin</td>
-                        <td>{product.battery || "3000"}mAh</td>
-                      </tr>
-                      {showFullSpecs && (
-                        <>
-                          <tr>
-                            <td>Camera trước</td>
-                            <td>{product.cameraFront || "7MP"}</td>
-                          </tr>
-                          <tr>
-                            <td>Hệ điều hành</td>
-                            <td>{product.os || "iOS"}</td>
-                          </tr>
-                          <tr>
-                            <td>SIM</td>
-                            <td>2 Nano-SIM & eSIM</td>
-                          </tr>
-                          <tr>
-                            <td>Kết nối</td>
-                            <td>5G, WiFi 6, Bluetooth 5.0</td>
-                          </tr>
-                          <tr>
-                            <td>Trọng lượng</td>
-                            <td>{product.weight || "175"}g</td>
-                          </tr>
-                          <tr>
-                            <td>Kích thước</td>
-                            <td>
-                              {product.dimensions || "146.7 x 71.5 x 7.65 mm"}
-                            </td>
-                          </tr>
-                        </>
-                      )}
-                    </>
-                  )}
+                  <tr>
+                    <td>Màn hình</td>
+                    <td>
+                      {product.displaySize}" {product.displayType || "OLED"}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>CPU</td>
+                    <td>{product.chipset || "Apple A15"}</td>
+                  </tr>
+                  <tr>
+                    <td>RAM</td>
+                    <td>{product.ram || "4"}GB</td>
+                  </tr>
+                  <tr>
+                    <td>Bộ nhớ</td>
+                    <td>{product.storage || "128"}GB</td>
+                  </tr>
+                  <tr>
+                    <td>Camera</td>
+                    <td>{product.cameraRear || "12MP"}</td>
+                  </tr>
+                  <tr>
+                    <td>Pin</td>
+                    <td>{product.battery || "3000"}mAh</td>
+                  </tr>
                 </tbody>
               </table>
-              <button
-                className="btn-show-more-specs"
-                onClick={() => setShowFullSpecs(!showFullSpecs)}
-              >
-                {showFullSpecs ? (
-                  <>
-                    <i className="fas fa-chevron-up"></i>
-                    Thu gọn
-                  </>
-                ) : (
-                  <>
-                    <i className="fas fa-chevron-down"></i>
-                    Xem thêm cấu hình
-                  </>
-                )}
-              </button>
             </div>
 
             <div className="video-column">
@@ -1023,6 +860,13 @@ const ModernProductDetails = () => {
               <i className="fas fa-shield-alt"></i>
               <span>Bảo hành</span>
             </button>
+            <button
+              className={`tab-btn ${activeTab === "reviews" ? "active" : ""}`}
+              onClick={() => setActiveTab("reviews")}
+            >
+              <i className="fas fa-star"></i>
+              <span>Đánh giá ({comments.length})</span>
+            </button>
           </div>
 
           <div className="tab-content">
@@ -1048,221 +892,79 @@ const ModernProductDetails = () => {
                 </ul>
               </div>
             )}
-          </div>
-        </div>
-      </div>
 
-      {/* Product Reviews Section - Standalone */}
-      <div className="product-reviews-wrapper">
-        <div className="container">
-          <div className="reviews-header">
-            <h3>
-              <i className="fas fa-star"></i>
-              Hỏi đáp & đánh giá {product.name}
-            </h3>
-            <div className="reviews-stats">
-              <div className="overall-rating">
-                <div className="rating-number">5/5</div>
-                <div className="rating-stars">{renderStarRating(5)}</div>
-                <div className="rating-count">{comments.length} đánh giá</div>
-              </div>
-              <div className="rating-breakdown">
-                <div className="rating-bar-item">
-                  <span className="star-label">5 Sao</span>
-                  <div className="bar-wrapper">
-                    <div className="bar-fill" style={{ width: "98%" }}></div>
-                  </div>
-                  <span className="count">
-                    {comments.filter((c) => c.rating === 5).length}
-                  </span>
-                </div>
-                <div className="rating-bar-item">
-                  <span className="star-label">4 Sao</span>
-                  <div className="bar-wrapper">
-                    <div className="bar-fill" style={{ width: "1.5%" }}></div>
-                  </div>
-                  <span className="count">
-                    {comments.filter((c) => c.rating === 4).length}
-                  </span>
-                </div>
-                <div className="rating-bar-item">
-                  <span className="star-label">3 Sao</span>
-                  <div className="bar-wrapper">
-                    <div className="bar-fill" style={{ width: "0.4%" }}></div>
-                  </div>
-                  <span className="count">
-                    {comments.filter((c) => c.rating === 3).length}
-                  </span>
-                </div>
-                <div className="rating-bar-item">
-                  <span className="star-label">2 Sao</span>
-                  <div className="bar-wrapper">
-                    <div className="bar-fill" style={{ width: "0%" }}></div>
-                  </div>
-                  <span className="count">
-                    {comments.filter((c) => c.rating === 2).length}
-                  </span>
-                </div>
-                <div className="rating-bar-item">
-                  <span className="star-label">1 Sao</span>
-                  <div className="bar-wrapper">
-                    <div className="bar-fill" style={{ width: "0.1%" }}></div>
-                  </div>
-                  <span className="count">
-                    {comments.filter((c) => c.rating === 1).length}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="comment-form-section">
-            <h4>Bạn có vấn đề cần tư vấn?</h4>
-            {isLoggedIn ? (
-              <form onSubmit={handleSubmit} className="comment-form">
-                <div className="rating-input">
-                  <label>Đánh giá của bạn:</label>
-                  {renderStarRating(form.rating, true, (rating) =>
-                    setForm({ ...form, rating })
+            {activeTab === "reviews" && (
+              <div className="reviews-section">
+                <div className="comment-form">
+                  <h4>Viết đánh giá sản phẩm</h4>
+                  {isLoggedIn ? (
+                    <form onSubmit={handleSubmit}>
+                      <div className="rating-input">
+                        <label>Đánh giá của bạn:</label>
+                        {renderStarRating(form.rating, true, (rating) =>
+                          setForm({ ...form, rating })
+                        )}
+                      </div>
+                      <div className="form-group">
+                        <label>Nội dung:</label>
+                        <textarea
+                          name="content"
+                          value={form.content}
+                          onChange={handleChange}
+                          placeholder="Chia sẻ trải nghiệm..."
+                          required
+                          rows={4}
+                          className="form-control"
+                        />
+                      </div>
+                      <button type="submit" className="btn btn-primary">
+                        <i className="fas fa-paper-plane"></i>
+                        Gửi đánh giá
+                      </button>
+                    </form>
+                  ) : (
+                    <div className="login-prompt">
+                      <p>Vui lòng đăng nhập để đánh giá</p>
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => navigate("/login")}
+                      >
+                        Đăng nhập
+                      </button>
+                    </div>
                   )}
                 </div>
-                <div className="form-group">
-                  <textarea
-                    name="content"
-                    value={form.content}
-                    onChange={handleChange}
-                    placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..."
-                    required
-                    rows={4}
-                    className="form-control"
-                  />
-                </div>
-                <button type="submit" className="btn btn-submit-review">
-                  <i className="fas fa-paper-plane"></i>
-                  Gửi câu hỏi
-                </button>
-              </form>
-            ) : (
-              <div className="login-prompt">
-                <p>Vui lòng đăng nhập để gửi câu hỏi và đánh giá sản phẩm</p>
-                <button
-                  className="btn btn-login"
-                  onClick={() => navigate("/login")}
-                >
-                  <i className="fas fa-sign-in-alt"></i>
-                  Đăng nhập
-                </button>
-              </div>
-            )}
-          </div>
 
-          <div className="comments-list-section">
-            {comments.length > 0 ? (
-              comments.map((comment) => {
-                // Lấy thông tin user từ các nguồn khác nhau
-                const userName =
-                  comment.user?.fullName ||
-                  comment.user?.name ||
-                  comment.customer?.fullName ||
-                  comment.customer?.name ||
-                  comment.name ||
-                  currentUser?.fullName ||
-                  "Khách hàng";
-
-                const userEmail =
-                  comment.user?.email ||
-                  comment.customer?.email ||
-                  comment.email ||
-                  currentUser?.email ||
-                  "email@example.com";
-
-                // Kiểm tra xem có phải khách hàng đã mua hàng không (có userId hoặc user object)
-                const isVerifiedCustomer = !!(
-                  comment.userId || comment.user?._id
-                );
-
-                return (
-                  <div key={comment._id} className="comment-item-card">
-                    <div className="comment-avatar">
-                      <i className="fas fa-user-circle"></i>
-                    </div>
-                    <div className="comment-body">
-                      <div className="comment-header">
-                        <div className="author-info">
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "0.4rem",
-                            }}
-                          >
-                            <strong className="author-name">{userName}</strong>
-                            {isVerifiedCustomer && (
-                              <span
-                                className="customer-badge verified"
-                                title="Khách hàng đã mua hàng tại Phone Store"
-                              >
-                                <i className="fas fa-check-circle"></i> Đã mua
-                                hàng tại PS
-                              </span>
-                            )}
+                <div className="comments-list">
+                  <h5>Đánh giá từ khách hàng ({comments.length})</h5>
+                  {comments.length > 0 ? (
+                    comments.map((comment) => (
+                      <div key={comment._id} className="comment-item">
+                        <div className="comment-header">
+                          <div className="comment-author">
+                            <strong>
+                              {comment.userId?.fullName || "Khách hàng"}
+                            </strong>
+                            {renderStarRating(comment.rating || 5)}
                           </div>
-                          <span className="author-phone">
-                            {maskEmail(userEmail)}
-                          </span>
-                        </div>
-                        <div className="comment-meta">
-                          {renderStarRating(comment.rating || 5)}
-                          <span className="comment-time">
-                            {new Date(comment.createdAt).toLocaleTimeString(
-                              "vi-VN",
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}{" "}
+                          <div className="comment-date">
                             {new Date(comment.createdAt).toLocaleDateString(
                               "vi-VN"
                             )}
-                          </span>
+                          </div>
+                        </div>
+                        <div className="comment-content">
+                          <p>{comment.content}</p>
                         </div>
                       </div>
-                      <div className="comment-content">
-                        <p>{comment.content}</p>
-                      </div>
-
-                      {/* Admin Reply Section */}
-                      {replies[comment._id] &&
-                        replies[comment._id].length > 0 && (
-                          <div className="admin-replies">
-                            {replies[comment._id].map((reply) => (
-                              <div key={reply._id} className="admin-reply">
-                                <div className="admin-reply-header">
-                                  <i className="fas fa-user-shield"></i>
-                                  <span className="admin-badge">
-                                    PhoneStore
-                                  </span>
-                                  <span className="reply-time">
-                                    {new Date(reply.createdAt).toLocaleString(
-                                      "vi-VN"
-                                    )}
-                                  </span>
-                                </div>
-                                <div className="admin-reply-content">
-                                  {reply.content}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                    ))
+                  ) : (
+                    <div className="no-comments">
+                      <i className="fas fa-comments"></i>
+                      <p>Chưa có đánh giá nào</p>
                     </div>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="no-comments">
-                <i className="fas fa-comments"></i>
-                <p>Chưa có đánh giá nào cho sản phẩm này</p>
+                  )}
+                </div>
               </div>
             )}
           </div>

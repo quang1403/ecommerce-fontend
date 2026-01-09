@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./ModernHeroSlider.css";
+import { getAllSliders } from "../../../services/SliderService";
 
 const ModernHeroSlider = ({
   slidesData = null,
@@ -11,6 +12,8 @@ const ModernHeroSlider = ({
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [apiSliders, setApiSliders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Default hero slides data (fallback)
   const defaultSlides = [
@@ -25,7 +28,7 @@ const ModernHeroSlider = ({
       discount: "15%",
       buttonText: "Mua ngay",
       buttonSecondary: "Tìm hiểu thêm",
-      image: "/images/banner-iphone15-pro.svg",
+      image: "/images/banner15.jpg",
       background:
         "linear-gradient(135deg, #001E4A 0%, #0B4D8A 50%, #1E40AF 100%)",
       textColor: "white",
@@ -112,8 +115,55 @@ const ModernHeroSlider = ({
     },
   ];
 
-  // Use provided slides or default slides
-  const slides = slidesData || defaultSlides;
+  // Fetch sliders from API
+  useEffect(() => {
+    const fetchSliders = async () => {
+      try {
+        setLoading(true);
+        const response = await getAllSliders();
+        const slidersFromApi = response.data || [];
+
+        // Transform API data to match component format
+        const transformedSliders = slidersFromApi.map((slider, index) => ({
+          id: slider._id || index,
+          title: slider.title || "Sản phẩm mới",
+          subtitle: slider.subtitle || "",
+          description: slider.description || "",
+          price: slider.price || "",
+          originalPrice: slider.originalPrice || "",
+          discount: slider.discount || "",
+          buttonText: slider.buttonText || "Mua ngay",
+          buttonSecondary: slider.buttonSecondary || "Tìm hiểu thêm",
+          image: slider.image,
+          link: slider.link || "#",
+          background:
+            slider.background ||
+            "linear-gradient(135deg, #001E4A 0%, #0B4D8A 50%, #1E40AF 100%)",
+          textColor: slider.textColor || "white",
+        }));
+
+        if (transformedSliders.length > 0) {
+          setApiSliders(transformedSliders);
+        }
+      } catch (error) {
+        console.error("Error fetching sliders:", error);
+        // Sử dụng defaultSlides nếu API lỗi
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Only fetch if no slidesData provided
+    if (!slidesData) {
+      fetchSliders();
+    } else {
+      setLoading(false);
+    }
+  }, [slidesData]);
+
+  // Use provided slides, API slides, or default slides
+  const slides =
+    slidesData || (apiSliders.length > 0 ? apiSliders : defaultSlides);
 
   // Auto play functionality
   useEffect(() => {
@@ -125,6 +175,35 @@ const ModernHeroSlider = ({
 
     return () => clearInterval(interval);
   }, [isAutoPlaying, slides.length, autoPlayInterval]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "ArrowLeft") {
+        goToPrev();
+      } else if (e.key === "ArrowRight") {
+        goToNext();
+      } else if (e.key === " ") {
+        e.preventDefault();
+        setIsAutoPlaying(!isAutoPlaying);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isAutoPlaying]);
+
+  // Show loading state
+  if (loading && !slidesData) {
+    return (
+      <div className="modern-hero-slider loading">
+        <div className="slider-loading">
+          <div className="spinner"></div>
+          <p>Đang tải slider...</p>
+        </div>
+      </div>
+    );
+  }
 
   const goToSlide = (index) => {
     setCurrentSlide(index);
@@ -177,23 +256,6 @@ const ModernHeroSlider = ({
     setTimeout(() => setIsAutoPlaying(true), 100);
   };
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "ArrowLeft") {
-        goToPrev();
-      } else if (e.key === "ArrowRight") {
-        goToNext();
-      } else if (e.key === " ") {
-        e.preventDefault();
-        setIsAutoPlaying(!isAutoPlaying);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isAutoPlaying]);
-
   return (
     <div
       className="modern-hero-slider"
@@ -233,10 +295,18 @@ const ModernHeroSlider = ({
                   </div>
 
                   <div className="slide-actions">
-                    <button className="btn btn-primary btn-lg">
+                    <a
+                      href={slide.link || "#"}
+                      className="btn btn-primary btn-lg"
+                      onClick={(e) => {
+                        if (!slide.link || slide.link === "#") {
+                          e.preventDefault();
+                        }
+                      }}
+                    >
                       <i className="fas fa-shopping-cart"></i>
                       {slide.buttonText}
-                    </button>
+                    </a>
                     <button className="btn btn-outline btn-lg">
                       <i className="fas fa-info-circle"></i>
                       {slide.buttonSecondary}
@@ -261,7 +331,13 @@ const ModernHeroSlider = ({
 
                 <div className="content-right">
                   <div className="slide-image">
-                    <img src={slide.image} alt={slide.title} />
+                    <img
+                      src={slide.image}
+                      alt={slide.title}
+                      loading="eager"
+                      decoding="async"
+                      fetchpriority="high"
+                    />
                     <div className="image-effects">
                       <div className="floating-element element-1">
                         <i className="fas fa-camera"></i>

@@ -216,36 +216,49 @@
   box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
 }
 
-/* ===== Form Action Buttons (trong drawer) ===== */
+/* ===== Form Inputs trong Product Form Page ===== */
+.ProductList .product-form-page input,
+.ProductList .product-form-page select,
+.ProductList .product-form-page textarea,
+.ProductList .drawer-panel input,
+.ProductList .drawer-panel select,
+.ProductList .drawer-panel textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 15px;
+  margin-bottom: 20px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ProductList .product-form-page input:focus,
+.ProductList .product-form-page select:focus,
+.ProductList .product-form-page textarea:focus,
+.ProductList .drawer-panel input:focus,
+.ProductList .drawer-panel select:focus,
+.ProductList .drawer-panel textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.ProductList .product-form-page label,
+.ProductList .drawer-panel label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+/* ===== Form Action Buttons (LEGACY - có thể xóa) ===== */
 .ProductList .drawer-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid #e5e7eb;
+  display: none; /* Không dùng nữa */
 }
 
 .ProductList .btn-add {
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.ProductList .btn-add:hover {
-  background: linear-gradient(135deg, #059669, #047857);
-  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
-  transform: translateY(-2px);
+  display: none; /* Không dùng nữa */
 }
 
 .ProductList .drawer-actions .btn-delete {
@@ -298,6 +311,24 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+.ProductList .admin-filter-bar button {
+  padding: 8px 16px;
+  background: #64b5f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ProductList .admin-filter-bar button:hover {
+  background: #42a5f5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(100, 181, 246, 0.3);
+}
+
 /* ===== Pagination ===== */
 .ProductList .pagination {
   margin: 16px 0;
@@ -341,58 +372,390 @@
   color: #6b7280;
 }
 
-/* ===== Drawer Panel Styling ===== */
-.ProductList .drawer-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+/* ===== Product Form Page - Toàn màn hình ===== */
+.ProductList .product-form-page {
+  background: white;
+  min-height: 100vh;
+  padding: 0;
+}
+
+.ProductList .product-form-page form {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px;
+}
+
+.ProductList .product-form-page h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 3px solid #f1f5f9;
+}
+
+/* Form 2 Column Layout */
+.ProductList .form-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.ProductList .form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.ProductList .form-field-full {
+  grid-column: 1 / -1;
+}
+
+/* Form Actions - Cố định ở cuối */
+.ProductList .form-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-top: 40px;
+  padding: 24px 0;
+  border-top: 2px solid #e5e7eb;
+  position: sticky;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  background: white;
+  z-index: 10;
+}
+
+.ProductList .btn-submit {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+  flex: 1;
+  max-width: 200px;
+}
+
+.ProductList .btn-submit:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
+  transform: translateY(-2px);
+}
+
+.ProductList .btn-cancel {
+  background: white;
+  color: #6b7280;
+  border: 2px solid #e5e7eb;
+  padding: 14px 32px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  max-width: 200px;
+}
+
+.ProductList .btn-cancel:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+/* ===== Variant Configuration Styles ===== */
+.ProductList .variant-item {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.ProductList .variant-input {
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
+  height: 38px;
+}
+
+.ProductList .variant-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.ProductList .variant-input-small {
+  width: 80px;
+}
+
+.ProductList .variant-input-medium {
+  width: 100px;
+}
+
+.ProductList .variant-input-large {
+  width: 150px;
+}
+
+.ProductList .variant-btn-delete {
+  padding: 8px 16px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ProductList .variant-btn-delete:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.ProductList .variant-btn-add {
+  padding: 10px 20px;
+  background: #64b5f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 4px;
+}
+
+.ProductList .variant-btn-add:hover {
+  background: #42a5f5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(100, 181, 246, 0.3);
+}
+
+/* ===== Modal Panel Styling (GIỮ LẠI NẾU CẦN) ===== */
+.ProductList .drawer-bg {
+  display: none; /* Không dùng nữa */
 }
 
 .ProductList .drawer-panel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  height: 100vh;
-  width: 500px;
+  display: none; /* Không dùng nữa */
+}
+
+/* ===== HTML Editor Styles ===== */
+.ProductList .html-editor {
+  margin-bottom: 20px;
+}
+
+.ProductList .editor-toolbar {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  background: #f8f9fa;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px 8px 0 0;
+  border-bottom: none;
+  align-items: center;
+}
+
+.ProductList .editor-toolbar button {
+  padding: 6px 12px;
   background: white;
-  z-index: 1001;
-  overflow-y: auto;
-  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
 }
 
-.ProductList .drawer-panel form {
-  padding: 24px;
+.ProductList .editor-toolbar button:hover {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
 }
 
-.ProductList .drawer-panel h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0 0 24px 0;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #f1f5f9;
+.ProductList .toolbar-divider {
+  color: #d1d5db;
+  font-size: 18px;
 }
 
-/* ===== Responsive ===== */
+.ProductList .html-editor textarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 0 0 8px 8px;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  margin-bottom: 0;
+}
+
+.ProductList .preview-box {
+  margin-top: 15px;
+  padding: 15px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.ProductList .preview-box strong {
+  display: block;
+  margin-bottom: 10px;
+  color: #374151;
+  font-size: 13px;
+}
+
+.ProductList .preview-content {
+  padding: 10px;
+  background: white;
+  border-radius: 4px;
+  min-height: 50px;
+  line-height: 1.6;
+}
+
+.ProductList .preview-content p {
+  margin: 10px 0;
+}
+
+.ProductList .preview-content h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 15px 0 10px;
+}
+
+/* ===== Form Inputs trong Modal ===== */
+.ProductList .drawer-panel input,
+.ProductList .drawer-panel select,
+.ProductList .drawer-panel textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 15px;
+  margin-bottom: 20px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ProductList .drawer-panel input:focus,
+.ProductList .drawer-panel select:focus,
+.ProductList .drawer-panel textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.ProductList .drawer-panel label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+/* ===== Responsive cho Modal ===== */
 @media (max-width: 768px) {
+  .ProductList .product-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .ProductList .product-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .ProductList .section-box {
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+
   .ProductList .section-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
+
   .ProductList .section-header h2 {
     font-size: 1rem;
   }
+
   .ProductList .section-header button {
     align-self: flex-end;
   }
+
+  .ProductList .table-wrapper {
+    border-radius: 8px;
+  }
+
   .ProductList .table-wrapper th,
   .ProductList .table-wrapper td {
-    padding: 10px;
-    font-size: 0.8rem;
+    padding: 8px 4px;
+    font-size: 0.75rem;
+  }
+
+  .ProductList .products-table {
+    padding: 12px;
+    margin-top: 12px;
+  }
+
+  .ProductList .products-table h3 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+
+  .ProductList .drawer-panel {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .ProductList .drawer-panel form {
+    padding: 16px;
+  }
+
+  .ProductList .drawer-actions {
+    padding: 12px 16px;
+    margin-left: -16px;
+    margin-right: -16px;
+    margin-bottom: -16px;
+  }
+
+  .ProductList .form-grid-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .ProductList .product-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .ProductList .section-box {
+    padding: 8px;
+    border-radius: 8px;
+  }
+
+  .ProductList .products-table {
+    padding: 8px;
+  }
+
+  .ProductList .table-wrapper th,
+  .ProductList .table-wrapper td {
+    padding: 6px 2px;
+    font-size: 0.7rem;
+  }
+
+  .ProductList .drawer-panel form {
+    padding: 12px;
   }
 }

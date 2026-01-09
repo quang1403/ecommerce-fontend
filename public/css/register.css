@@ -1,112 +1,163 @@
-#my-cart, #customer{
-	background:#FFF;
-	border-radius:3px;
-	margin-top:20px;
-	padding:10px 15px;}
-.cart-nav-item{
-	height:50px;
-	line-height:50px;
-	font-size:16px;
-	border-bottom:1px solid #CCC;}	
-.cart-item{
-	border-bottom:1px solid #CCC;}
-.cart-thumb, .cart-quantity, .cart-price, .cart-total{
-	padding:10px;}	
-.cart-item img{
-	width:50px;
-	float:left;
-	margin-right:10px;}
-.cart-thumb h4, .cart-total b{
-	font-size:16px;}	
-.cart-price b{
-	display:block;
-	font-size:18px;
-	color:#eb1f27;}
-.cart-price a{
-	display:inline-table;
-	padding:5px 10px;
-	color:#333;
-	text-decoration:none;
-	border-radius:3px;
-	background:#CCC;}
-.cart-price a:hover{
-	background:#FFF;}	
+/* ===================================================
+   REGISTER FORM – CLEAN & MODERN
+   =================================================== */
 
-
-#customer-name, #customer-pass, #customer-phone, #customer-mail, #customer-add, .by-now{
-	padding:10px;}
-
-
-.by-now a{
-	text-align:center;
-	display:inline-table;
-	padding:10px 30px;
-	background:#EB1F27;
-	border-radius:3px;
-	text-decoration:none;
-	border:1px solid #EB1F27;
-	
-	transition:background 0.2s;}
-.by-now b, .by-now span{
-	color:#FFF;}	
-.by-now b{
-	display:block;}		
-.by-now:last-child a{
-	background:#305eb3;
-	border:1px solid #305eb3;}	
-.by-now a:hover{
-	background:#FFF;}		
-.by-now a:hover b{
-	color:#EB1F27;
-	}	
-.by-now a:hover span{
-	color:#EB1F27;
-	}
-.by-now:last-child a:hover b{
-	color:#305eb3;
-	}	
-.by-now:last-child a:hover span{
-	color:#305eb3;
-	}		
-.by-now:first-child{
-	text-align:right;}		
-.by-now:last-child{
-	text-align:left;}	
-
-#update-cart{
-    border-radius: 3px;
-    border: 1px solid #305eb3;
-    background: #305eb3;
-    padding: 15px 20px;
-    color: #FFF;
+/* Container */
+.register-container {
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 40px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
-#update-cart:hover{
-    background: #FFFFFF;
-    color: #305eb3;
-}		
-@media (max-width:768px){
-	.by-now:first-child{
-		text-align:left;}
-}	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
+/* Title */
+.register-title {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 28px;
+  font-weight: 600;
+  color: #1f2937;
+}
 
+/* Form Row - 2 columns */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
 
+/* Form Column */
+.form-col {
+  display: flex;
+  flex-direction: column;
+}
 
+/* Input Fields */
+.form-input {
+  width: 100%;
+  height: 46px;
+  padding: 10px 14px;
+  font-size: 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
+}
 
+.form-input::placeholder {
+  color: #9ca3af;
+}
 
+.form-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
 
+/* Submit Button */
+.btn-submit {
+  width: 100%;
+  height: 46px;
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.15s ease;
+}
 
+.btn-submit:hover {
+  background-color: #1e40af;
+  transform: translateY(-1px);
+}
 
+.btn-submit:active {
+  transform: translateY(0);
+}
 
+/* Back Button */
+.btn-back {
+  width: 100%;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  box-sizing: border-box;
+}
 
+.btn-back:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
 
-	
+/* Alerts */
+.alert {
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.alert-danger {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.alert-success {
+  background-color: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+/* Divider */
+.divider {
+  margin: 24px 0;
+  text-align: center;
+  position: relative;
+}
+
+.divider::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1px;
+  background-color: #e5e7eb;
+}
+
+.divider span {
+  position: relative;
+  background-color: #ffffff;
+  padding: 0 12px;
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .register-container {
+    margin: 30px 15px;
+    padding: 30px 20px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+}

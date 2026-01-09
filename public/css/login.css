@@ -1,112 +1,147 @@
-#my-cart, #customer{
-	background:#FFF;
-	border-radius:3px;
-	margin-top:20px;
-	padding:10px 15px;}
-.cart-nav-item{
-	height:50px;
-	line-height:50px;
-	font-size:16px;
-	border-bottom:1px solid #CCC;}	
-.cart-item{
-	border-bottom:1px solid #CCC;}
-.cart-thumb, .cart-quantity, .cart-price, .cart-total{
-	padding:10px;}	
-.cart-item img{
-	width:50px;
-	float:left;
-	margin-right:10px;}
-.cart-thumb h4, .cart-total b{
-	font-size:16px;}	
-.cart-price b{
-	display:block;
-	font-size:18px;
-	color:#eb1f27;}
-.cart-price a{
-	display:inline-table;
-	padding:5px 10px;
-	color:#333;
-	text-decoration:none;
-	border-radius:3px;
-	background:#CCC;}
-.cart-price a:hover{
-	background:#FFF;}	
-
-
-#customer-name, #customer-pass, #customer-phone, #customer-mail, #customer-add, .by-now{
-	padding:10px;}
-
-
-.by-now a{
-	text-align:center;
-	display:inline-table;
-	padding:10px 30px;
-	background:#EB1F27;
-	border-radius:3px;
-	text-decoration:none;
-	border:1px solid #EB1F27;
-	
-	transition:background 0.2s;}
-.by-now b, .by-now span{
-	color:#FFF;}	
-.by-now b{
-	display:block;}		
-.by-now:last-child a{
-	background:#305eb3;
-	border:1px solid #305eb3;}	
-.by-now a:hover{
-	background:#FFF;}		
-.by-now a:hover b{
-	color:#EB1F27;
-	}	
-.by-now a:hover span{
-	color:#EB1F27;
-	}
-.by-now:last-child a:hover b{
-	color:#305eb3;
-	}	
-.by-now:last-child a:hover span{
-	color:#305eb3;
-	}		
-.by-now:first-child{
-	text-align:right;}		
-.by-now:last-child{
-	text-align:left;}	
-
-#update-cart{
-    border-radius: 3px;
-    border: 1px solid #305eb3;
-    background: #305eb3;
-    padding: 15px 20px;
-    color: #FFF;
+/* ===== Page wrapper ===== */
+.LoginPage {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9fafb;
+  padding: 20px;
 }
-#update-cart:hover{
-    background: #FFFFFF;
-    color: #305eb3;
-}		
-@media (max-width:768px){
-	.by-now:first-child{
-		text-align:left;}
-}	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
+/* ===== Card ===== */
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background-color: #ffffff;
+  padding: 36px 40px;
+  border-radius: 10px;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.08);
+}
 
+/* ===== Title ===== */
+.login-card h3 {
+  margin-bottom: 26px;
+  text-align: center;
+  font-weight: 600;
+  color: #1f2937;
+  letter-spacing: 0.4px;
+}
 
+/* ===== Alert ===== */
+.login-card .alert {
+  font-size: 14px;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+}
 
+/* ===== Form group ===== */
+.login-card .form-group {
+  margin-bottom: 18px;
+}
 
+/* ===== Input ===== */
+.login-card .form-control {
+  height: 46px;
+  padding: 10px 14px;
+  font-size: 15px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
 
+.login-card .form-control::placeholder {
+  color: #9ca3af;
+  font-size: 14px;
+}
 
+/* Focus */
+.login-card .form-control:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
 
+/* ===== Login Button ===== */
+.login-btn {
+  width: 100%;
+  height: 46px;
+  margin-top: 6px;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.25s ease, box-shadow 0.25s ease,
+    transform 0.15s ease;
+}
 
+.login-btn:hover {
+  background-color: #1e40af;
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.2);
+}
 
+.login-btn:active {
+  transform: scale(0.98);
+}
 
+/* ===== Divider ===== */
+.divider {
+  margin: 24px 0;
+  text-align: center;
+  position: relative;
+}
 
-	
+.divider::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1px;
+  background-color: #e5e7eb;
+}
+
+.divider span {
+  position: relative;
+  background-color: #ffffff;
+  padding: 0 12px;
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* ===== Links ===== */
+.login-links {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+}
+
+.login-links-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.login-links a {
+  font-size: 14px;
+  color: #374151;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.login-links a:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 576px) {
+  .login-card {
+    padding: 28px 24px;
+  }
+}

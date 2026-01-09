@@ -69,6 +69,7 @@ const Payment = () => {
   const [editingAddress, setEditingAddress] = useState(null);
   const [userAddresses, setUserAddresses] = useState([]);
   const [loadingAddresses, setLoadingAddresses] = useState(true);
+  const [countdown, setCountdown] = useState(269); // 4 phút 29 giây
 
   const phone = login.currentCustomer?.phone || login.phone || "";
 
@@ -86,6 +87,17 @@ const Payment = () => {
       setSelectedAddressId(userAddresses[0]._id);
     }
   }, [userAddresses, selectedAddressId]);
+
+  // Countdown timer for QR payment
+  useEffect(() => {
+    let timer;
+    if (showQR && countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [showQR, countdown]);
 
   const loadUserAddresses = async () => {
     try {
@@ -181,6 +193,7 @@ const Payment = () => {
       setOrderId(newOrderId);
       if (paymentMethod === "online") {
         setShowQR(true);
+        setCountdown(269); // Reset countdown khi mở QR
       } else {
         window.scrollTo({ top: 0, behavior: "smooth" });
         await clearCartApi();
@@ -270,20 +283,12 @@ const Payment = () => {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: 900,
-        margin: "0 auto",
-        background: "#fff",
-        padding: 24,
-        borderRadius: 8,
-      }}
-    >
+    <div className="payment-container">
       <h3>Sản phẩm</h3>
-      <table style={{ width: "100%", marginBottom: 24 }}>
+      <table className="payment-product-table">
         <thead>
-          <tr style={{ background: "#f5f5f5" }}>
-            <th style={{ textAlign: "left", padding: 8 }}>Sản phẩm</th>
+          <tr>
+            <th style={{ textAlign: "left" }}>Sản phẩm</th>
             <th>Đơn giá</th>
             <th>Số lượng</th>
             <th>Thành tiền</th>
@@ -292,76 +297,50 @@ const Payment = () => {
         <tbody>
           {items.map((item) => (
             <tr key={item._id}>
-              <td
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  padding: 8,
-                }}
-              >
-                <img
-                  src={getImageProduct(item.productId?.images?.[0])}
-                  alt={item.productId?.name}
-                  style={{
-                    width: 60,
-                    height: 60,
-                    objectFit: "cover",
-                    borderRadius: 8,
-                  }}
-                />
-                <span>{item.productId?.name}</span>
-                {isHeadphoneProduct(item.productId) ? (
-                  // Headphone variant display - only color
-                  <>
-                    {item.variant?.color && (
-                      <span
-                        style={{ marginLeft: 8, color: "#555", fontSize: 13 }}
-                      >
-                        Màu: {item.variant.color}
-                      </span>
-                    )}
-                  </>
-                ) : (
-                  // Phone variant display
-                  <>
-                    {item.variant ? (
-                      <span
-                        style={{ marginLeft: 8, color: "#555", fontSize: 13 }}
-                      >
-                        RAM: {item.variant.ram}GB, Bộ nhớ:{" "}
-                        {item.variant.storage}GB
-                      </span>
-                    ) : (
-                      <>
-                        {item.ram && (
-                          <span
-                            style={{
-                              marginLeft: 8,
-                              color: "#555",
-                              fontSize: 13,
-                            }}
-                          >
-                            RAM: {item.ram}GB
-                          </span>
-                        )}
-                        {item.storage && (
-                          <span
-                            style={{
-                              marginLeft: 8,
-                              color: "#555",
-                              fontSize: 13,
-                            }}
-                          >
-                            Bộ nhớ: {item.storage}GB
-                          </span>
-                        )}
-                      </>
-                    )}
-                  </>
-                )}
+              <td>
+                <div className="payment-product-cell">
+                  <img
+                    src={getImageProduct(item.productId?.images?.[0])}
+                    alt={item.productId?.name}
+                    className="payment-product-image"
+                  />
+                  <span>{item.productId?.name}</span>
+                  {isHeadphoneProduct(item.productId) ? (
+                    // Headphone variant display - only color
+                    <>
+                      {item.variant?.color && (
+                        <span className="payment-variant-info">
+                          Màu: {item.variant.color}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    // Phone variant display
+                    <>
+                      {item.variant ? (
+                        <span className="payment-variant-info">
+                          RAM: {item.variant.ram}GB, Bộ nhớ:{" "}
+                          {item.variant.storage}GB
+                        </span>
+                      ) : (
+                        <>
+                          {item.ram && (
+                            <span className="payment-variant-info">
+                              RAM: {item.ram}GB
+                            </span>
+                          )}
+                          {item.storage && (
+                            <span className="payment-variant-info">
+                              Bộ nhớ: {item.storage}GB
+                            </span>
+                          )}
+                        </>
+                      )}
+                    </>
+                  )}
+                </div>
               </td>
-              <td style={{ color: "#d32f2f", fontWeight: "bold" }}>
+              <td className="payment-price">
                 {(
                   item.variant?.price ||
                   item.price ||
@@ -371,7 +350,7 @@ const Payment = () => {
                 đ
               </td>
               <td>{item.quantity}</td>
-              <td style={{ color: "#d32f2f", fontWeight: "bold" }}>
+              <td className="payment-price">
                 {(
                   item.quantity *
                   (item.variant?.price ||
@@ -386,16 +365,9 @@ const Payment = () => {
         </tbody>
       </table>
 
-      <div
-        style={{
-          background: "#f5f5f5",
-          padding: 16,
-          borderRadius: 8,
-          marginBottom: 24,
-        }}
-      >
-        <h4 style={{ color: "#4a90e2" }}>Cách thức nhận hàng</h4>
-        <label style={{ marginRight: 24 }}>
+      <div className="payment-options-section">
+        <h4>Cách thức nhận hàng</h4>
+        <label className="payment-radio-label">
           <input
             type="radio"
             checked={deliveryMethod === "home"}
@@ -403,7 +375,7 @@ const Payment = () => {
           />{" "}
           Giao hàng tận nơi
         </label>
-        <label>
+        <label className="payment-radio-label">
           <input
             type="radio"
             checked={deliveryMethod === "store"}
@@ -411,10 +383,8 @@ const Payment = () => {
           />{" "}
           Nhận hàng tại cửa hàng
         </label>
-        <h4 style={{ color: "#4a90e2", marginTop: 16 }}>
-          Phương thức thanh toán
-        </h4>
-        <label style={{ marginRight: 24 }}>
+        <h4>Phương thức thanh toán</h4>
+        <label className="payment-radio-label">
           <input
             type="radio"
             checked={paymentMethod === "cod"}
@@ -422,7 +392,7 @@ const Payment = () => {
           />{" "}
           Thanh toán khi nhận hàng
         </label>
-        <label>
+        <label className="payment-radio-label">
           <input
             type="radio"
             checked={paymentMethod === "online"}
@@ -431,135 +401,58 @@ const Payment = () => {
           Chuyển khoản online
         </label>
         {/* Address Management Section */}
-        <h4 style={{ color: "#4a90e2", marginTop: 16 }}>Địa chỉ nhận hàng</h4>
+        <h4>Địa chỉ nhận hàng</h4>
         {loadingAddresses ? (
-          <div style={{ textAlign: "center", padding: "20px" }}>
+          <div className="address-loading">
             <i className="fas fa-spinner fa-spin"></i> Đang tải địa chỉ...
           </div>
         ) : (
           <div className="address-section">
             {userAddresses.length === 0 ? (
-              <div
-                style={{
-                  padding: "16px",
-                  textAlign: "center",
-                  color: "#666",
-                  border: "1px dashed #ddd",
-                  borderRadius: "8px",
-                }}
-              >
+              <div className="address-empty">
                 <p>Chưa có địa chỉ nào</p>
                 <button
                   onClick={openAddModal}
-                  style={{
-                    background: "#4a90e2",
-                    color: "white",
-                    border: "none",
-                    padding: "8px 16px",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                  }}
+                  className="address-add-btn-inline"
                 >
                   <i className="fas fa-plus"></i> Thêm địa chỉ
                 </button>
               </div>
             ) : (
               <>
-                <div
-                  className="address-list"
-                  style={{ maxHeight: "300px", overflowY: "auto" }}
-                >
+                <div className="address-list">
                   {userAddresses.map((addr) => (
                     <div
                       key={addr._id}
                       className={`address-item ${
                         selectedAddressId === addr._id ? "selected" : ""
                       }`}
-                      style={{
-                        border:
-                          selectedAddressId === addr._id
-                            ? "2px solid #4a90e2"
-                            : "1px solid #ddd",
-                        borderRadius: "8px",
-                        padding: "12px",
-                        marginBottom: "8px",
-                        cursor: "pointer",
-                        background:
-                          selectedAddressId === addr._id ? "#f0f7ff" : "white",
-                        transition: "all 0.2s",
-                      }}
                       onClick={() => setSelectedAddressId(addr._id)}
                     >
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "flex-start",
-                        }}
-                      >
-                        <div style={{ flex: 1 }}>
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "8px",
-                              marginBottom: "4px",
-                            }}
-                          >
-                            <span
-                              style={{
-                                background: "#4a90e2",
-                                color: "white",
-                                padding: "2px 8px",
-                                borderRadius: "4px",
-                                fontSize: "12px",
-                              }}
-                            >
-                              {addr.label}
-                            </span>
+                      <div className="address-item-content">
+                        <div className="address-item-info">
+                          <div className="address-item-labels">
+                            <span className="address-label">{addr.label}</span>
                             {addr.isDefault && (
-                              <span
-                                style={{
-                                  background: "#28a745",
-                                  color: "white",
-                                  padding: "2px 6px",
-                                  borderRadius: "4px",
-                                  fontSize: "11px",
-                                }}
-                              >
+                              <span className="address-default-badge">
                                 Mặc định
                               </span>
                             )}
                           </div>
-                          <div
-                            style={{
-                              fontSize: "14px",
-                              color: "#333",
-                              marginBottom: "4px",
-                            }}
-                          >
-                            {addr.address}
-                          </div>
+                          <div className="address-text">{addr.address}</div>
                           {addr.phone && (
-                            <div style={{ fontSize: "13px", color: "#666" }}>
+                            <div className="address-phone">
                               SĐT: {addr.phone}
                             </div>
                           )}
                         </div>
-                        <div style={{ display: "flex", gap: "8px" }}>
+                        <div className="address-item-actions">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               openEditModal(addr);
                             }}
-                            style={{
-                              background: "none",
-                              border: "1px solid #ddd",
-                              padding: "4px 8px",
-                              borderRadius: "4px",
-                              cursor: "pointer",
-                              fontSize: "12px",
-                            }}
+                            className="address-action-btn"
                           >
                             <i className="fas fa-edit"></i>
                           </button>
@@ -568,15 +461,7 @@ const Payment = () => {
                               e.stopPropagation();
                               handleDeleteAddress(addr._id);
                             }}
-                            style={{
-                              background: "none",
-                              border: "1px solid #e74c3c",
-                              color: "#e74c3c",
-                              padding: "4px 8px",
-                              borderRadius: "4px",
-                              cursor: "pointer",
-                              fontSize: "12px",
-                            }}
+                            className="address-action-btn delete"
                           >
                             <i className="fas fa-trash"></i>
                           </button>
@@ -586,19 +471,7 @@ const Payment = () => {
                   ))}
                 </div>
 
-                <button
-                  onClick={openAddModal}
-                  style={{
-                    background: "#4a90e2",
-                    color: "white",
-                    border: "none",
-                    padding: "10px 16px",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                    marginTop: "12px",
-                    width: "100%",
-                  }}
-                >
+                <button onClick={openAddModal} className="address-add-btn">
                   <i className="fas fa-plus"></i> Thêm địa chỉ mới
                 </button>
               </>
@@ -618,95 +491,226 @@ const Payment = () => {
         />
       </div>
 
-      <div style={{ marginBottom: 24 }}>
-        <h4 style={{ color: "#4a90e2" }}>Ghi chú:</h4>
+      <div className="payment-note-section">
+        <h4>Ghi chú:</h4>
         <textarea
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          style={{
-            width: "100%",
-            minHeight: 80,
-            borderRadius: 8,
-            border: "1px solid #ccc",
-            padding: 8,
-          }}
+          className="payment-note-textarea"
           placeholder="Nhập ghi chú..."
         />
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          gap: 32,
-        }}
-      >
-        <div>
+      <div className="payment-summary">
+        <div className="payment-summary-info">
           <div>
             Tổng tiền sản phẩm: <b>{total.toLocaleString()} đ</b>
           </div>
           <div>
             Tổng giảm giá: <b>0 đ</b>
           </div>
-          <div style={{ color: "#4a90e2", fontWeight: "bold", fontSize: 18 }}>
+          <div className="payment-summary-total">
             Tổng thanh toán: {total.toLocaleString()} đ
           </div>
         </div>
         <button
           onClick={handleOrder}
-          style={{
-            background: "#4a90e2",
-            color: "#fff",
-            border: "none",
-            borderRadius: 8,
-            padding: "12px 32px",
-            fontWeight: "bold",
-            fontSize: 16,
-            cursor: "pointer",
-          }}
+          className="payment-order-btn"
           disabled={isOrdering}
         >
           {isOrdering ? "Đang đặt hàng..." : "ĐẶT HÀNG"}
         </button>
       </div>
-      {/* Hiển thị QR khi chọn chuyển khoản online và đã đặt hàng */}
+      {/* Hiển thị QR Modal khi chọn chuyển khoản online và đã đặt hàng */}
       {showQR && paymentMethod === "online" && (
-        <div style={{ marginTop: 32, textAlign: "center" }}>
-          <h3>Quét mã QR để chuyển khoản</h3>
-          <img
-            src={getVietQRUrl(total, orderId || "Thanh toan don hang")}
-            alt="QR chuyển khoản MB Bank"
-            style={{ width: 260, height: 260, margin: "0 auto" }}
-          />
-          <div style={{ marginTop: 16 }}>
-            <b>Ngân hàng:</b> MB Bank
-            <br />
-            <b>Số tài khoản:</b> {bankAccount}
-            <br />
-            <b>Số tiền:</b> {total.toLocaleString()} đ<br />
-            <b>Nội dung chuyển khoản:</b> {orderId || "Thanh toan don hang"}
-          </div>
-          <div style={{ marginTop: 16, color: "#d32f2f" }}>
-            Vui lòng chuyển khoản đúng số tiền và nội dung để hệ thống xác nhận
-            đơn hàng!
-          </div>
-          <button
-            style={{
-              marginTop: 24,
-              background: "#4caf50",
-              color: "#fff",
-              border: "none",
-              borderRadius: 8,
-              padding: "12px 32px",
-              fontWeight: "bold",
-              fontSize: 16,
-              cursor: "pointer",
-            }}
-            onClick={handleConfirmPayment}
+        <div className="qr-modal-overlay" onClick={() => setShowQR(false)}>
+          <div
+            className="qr-modal-content"
+            onClick={(e) => e.stopPropagation()}
           >
-            Xác nhận đã thanh toán
-          </button>
+            {/* Header */}
+            <div className="qr-modal-header">
+              <div className="qr-modal-icon">
+                <i className="fas fa-credit-card-alt"></i>
+              </div>
+              <h2 className="qr-modal-title">Thanh toán chuyển khoản</h2>
+            </div>
+
+            {/* Body */}
+            <div className="qr-modal-body">
+              {/* Left side - Instructions */}
+              <div className="qr-modal-left">
+                <div className="qr-info-section">
+                  <p className="qr-info-text">
+                    Đơn hàng #{orderId?.slice(-8) || "XXXXXXXX"}
+                  </p>
+                  <p className="qr-info-subtext">
+                    Vui lòng hoàn tất thanh toán trong thời gian quy định để đơn
+                    hàng được xử lý nhanh chóng. Sau khi thanh toán thành công,
+                    đơn hàng sẽ được chuẩn bị và giao đến bạn.
+                  </p>
+                </div>
+
+                <div className="qr-money-section">
+                  <div className="qr-money-icon">
+                    <i className="fas fa-shopping-bag"></i>
+                  </div>
+                  <div className="qr-money-info">
+                    <h3 className="qr-money-amount">
+                      {total.toLocaleString()} VND
+                    </h3>
+                    <p className="qr-money-date">
+                      Đơn hàng tạo ngày {new Date().toLocaleDateString("vi-VN")}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="qr-instructions">
+                  <h4 className="qr-instructions-title">
+                    Hướng dẫn thanh toán:
+                  </h4>
+                  <ol className="qr-instructions-list">
+                    <li>
+                      <strong>Mở ứng dụng ngân hàng</strong> hoặc{" "}
+                      <strong>ứng dụng MoMo</strong> trên điện thoại
+                    </li>
+                    <li>
+                      Chọn <strong>"Quét mã QR"</strong> và hướng camera vào mã
+                      QR bên phải
+                    </li>
+                    <li>
+                      Kiểm tra thông tin và chọn <strong>"Xác nhận"</strong> để
+                      hoàn tất thanh toán
+                    </li>
+                  </ol>
+                </div>
+
+                <div className="qr-countdown">
+                  <span>Mã QR hết hạn sau: </span>
+                  <strong className="countdown-time">
+                    {Math.floor(countdown / 60)}:
+                    {String(countdown % 60).padStart(2, "0")}
+                  </strong>
+                </div>
+
+                <div className="qr-banks">
+                  <p className="qr-banks-title">
+                    Hỗ trợ <strong>50+ ngân hàng</strong> và ví điện tử
+                  </p>
+                  <div className="qr-banks-logos">
+                    <div className="bank-logo">
+                      <img
+                        src="https://api.vietqr.io/img/ICB.png"
+                        alt="VietinBank"
+                      />
+                    </div>
+                    <div className="bank-logo">
+                      <img
+                        src="https://api.vietqr.io/img/VCB.png"
+                        alt="Vietcombank"
+                      />
+                    </div>
+                    <div className="bank-logo">
+                      <img
+                        src="https://api.vietqr.io/img/MB.png"
+                        alt="MB Bank"
+                      />
+                    </div>
+                    <div className="bank-logo">
+                      <img
+                        src="https://api.vietqr.io/img/TCB.png"
+                        alt="Techcombank"
+                      />
+                    </div>
+                    <div className="bank-logo">
+                      <img src="https://api.vietqr.io/img/ACB.png" alt="ACB" />
+                    </div>
+                    <div className="bank-logo">
+                      <span>...</span>
+                    </div>
+                  </div>
+                  <a href="#" className="qr-banks-link">
+                    Xem tất cả ngân hàng hỗ trợ
+                  </a>
+                </div>
+
+                <div className="qr-note">
+                  <div className="qr-note-icon">
+                    <i className="fas fa-info-circle"></i>
+                  </div>
+                  <div className="qr-note-content">
+                    <h5>Lưu ý quan trọng</h5>
+                    <p>
+                      Vui lòng chuyển khoản{" "}
+                      <strong>đúng số tiền và nội dung</strong> để hệ thống tự
+                      động xác nhận đơn hàng. Nếu cần hỗ trợ, liên hệ{" "}
+                      <a href="tel:19001234">Hotline: 1900 1234</a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right side - QR Code */}
+              <div className="qr-modal-right">
+                <div className="qr-code-section">
+                  <p className="qr-instruction-text">
+                    Quét mã QR bằng <strong>ứng dụng ngân hàng</strong> hoặc{" "}
+                    <strong>ví MoMo</strong> để thanh toán
+                  </p>
+                  <div className="qr-code-container">
+                    <img
+                      src={getVietQRUrl(
+                        total,
+                        orderId || "Thanh toan don hang"
+                      )}
+                      alt="QR chuyển khoản"
+                      className="qr-code-image"
+                    />
+                  </div>
+                  <div className="qr-payment-info">
+                    <div className="qr-payment-row">
+                      <span>Ngân hàng:</span>
+                      <strong>MB Bank</strong>
+                    </div>
+                    <div className="qr-payment-row">
+                      <span>Số tài khoản:</span>
+                      <strong>{bankAccount}</strong>
+                    </div>
+                    <div className="qr-payment-row">
+                      <span>Chủ tài khoản:</span>
+                      <strong>{bankName}</strong>
+                    </div>
+                    <div className="qr-payment-row">
+                      <span>Số tiền:</span>
+                      <strong className="amount-text">
+                        {total.toLocaleString()} đ
+                      </strong>
+                    </div>
+                    <div className="qr-payment-row">
+                      <span>Nội dung:</span>
+                      <strong>{orderId || "Thanh toan don hang"}</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="qr-modal-footer">
+              <button
+                className="qr-modal-btn qr-modal-btn-secondary"
+                onClick={() => setShowQR(false)}
+              >
+                Đóng
+              </button>
+              <button
+                className="qr-modal-btn qr-modal-btn-primary"
+                onClick={handleConfirmPayment}
+              >
+                Hoàn tất
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -95,8 +95,6 @@ const InstallmentOrders = () => {
   };
 
   const openDetailModal = (order) => {
-    console.log("Selected order data:", order);
-    console.log("Customer info:", order.installment?.customerInfo);
     setSelectedOrder(order);
     setShowDetailModal(true);
   };
@@ -148,41 +146,59 @@ const InstallmentOrders = () => {
                 </td>
               </tr>
             ) : (
-              orders.map((order) => (
-                <tr key={order._id}>
-                  <td>{order._id.slice(-8)}</td>
-                  <td>
-                    {order.customerId?.name || "N/A"}
-                    <br />
-                    <small>{order.customerId?.email || ""}</small>
-                  </td>
-                  <td>
-                    {order.installment?.type === "creditCard"
-                      ? "💳 Thẻ tín dụng"
-                      : "🏦 Công ty tài chính"}
-                  </td>
-                  <td>{formatCurrency(order.installment?.monthlyPayment)}</td>
-                  <td>{formatCurrency(order.total)}</td>
-                  <td>
-                    <span
-                      className={`status-badge ${getStatusClass(
-                        order.installment?.financeStatus
-                      )}`}
-                    >
-                      {getStatusLabel(order.installment?.financeStatus)}
-                    </span>
-                  </td>
-                  <td>{formatDate(order.createdAt)}</td>
-                  <td>
-                    <button
-                      className="btn-view"
-                      onClick={() => openDetailModal(order)}
-                    >
-                      Xem chi tiết
-                    </button>
-                  </td>
-                </tr>
-              ))
+              orders.map((order) => {
+                // Lấy thông tin khách hàng từ các nguồn khác nhau
+                const customerName =
+                  order.user?.fullName ||
+                  order.user?.name ||
+                  order.customerId?.fullName ||
+                  order.customerId?.name ||
+                  order.customer?.fullName ||
+                  order.customer?.name ||
+                  "N/A";
+
+                const customerEmail =
+                  order.user?.email ||
+                  order.customerId?.email ||
+                  order.customer?.email ||
+                  "";
+
+                return (
+                  <tr key={order._id}>
+                    <td>{order._id.slice(-8)}</td>
+                    <td>
+                      {customerName}
+                      <br />
+                      <small>{customerEmail}</small>
+                    </td>
+                    <td>
+                      {order.installment?.type === "creditCard"
+                        ? "💳 Thẻ tín dụng"
+                        : "🏦 Công ty tài chính"}
+                    </td>
+                    <td>{formatCurrency(order.installment?.monthlyPayment)}</td>
+                    <td>{formatCurrency(order.total)}</td>
+                    <td>
+                      <span
+                        className={`status-badge ${getStatusClass(
+                          order.installment?.financeStatus
+                        )}`}
+                      >
+                        {getStatusLabel(order.installment?.financeStatus)}
+                      </span>
+                    </td>
+                    <td>{formatDate(order.createdAt)}</td>
+                    <td>
+                      <button
+                        className="btn-view"
+                        onClick={() => openDetailModal(order)}
+                      >
+                        Xem chi tiết
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>

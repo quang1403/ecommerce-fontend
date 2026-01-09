@@ -63,7 +63,7 @@ const AIChatbot = () => {
   }, [messages]);
 
   // Handle action button click
-  const handleAction = async (actionType, productId) => {
+  const handleAction = async (actionType, productId, message) => {
     console.log(
       "🔍 Action clicked:",
       actionType,
@@ -91,9 +91,27 @@ const AIChatbot = () => {
       const productRes = await getProductById(productId);
       const fullProduct = productRes.data.data;
 
-      // Lấy danh sách màu sắc từ API
-      const colorsRes = await Http.get(`/products/${productId}/colors`);
-      const colors = colorsRes.data.colors || [];
+      // ✅ ƯU TIÊN dùng colorVariants từ message (đã có sẵn từ chatbot)
+      let colorVariants = [];
+
+      if (message?.colorVariants && message.colorVariants.length > 0) {
+        // Có colorVariants từ chatbot response
+        colorVariants = message.colorVariants;
+        console.log(
+          "✅ Dùng colorVariants từ chatbot response:",
+          colorVariants.length
+        );
+      } else if (
+        fullProduct?.colorVariants &&
+        fullProduct.colorVariants.length > 0
+      ) {
+        // Fallback: dùng colorVariants từ product API
+        colorVariants = fullProduct.colorVariants;
+        console.log("⚠️ Fallback: dùng colorVariants từ product API");
+      }
+
+      // Extract màu sắc từ colorVariants
+      const colors = colorVariants.map((v) => v.color);
 
       // Kiểm tra xem sản phẩm có cần chọn variant không
       const needsVariant =
@@ -107,6 +125,7 @@ const AIChatbot = () => {
           actionType,
           productId,
           product: fullProduct,
+          colorVariants: colorVariants, // ✅ Lưu colorVariants vào modal data
         });
         setSelectedVariant({
           color: colors.length > 0 ? "" : "default",
@@ -276,6 +295,8 @@ const AIChatbot = () => {
         // Product data và actions từ backend
         product: response.data.product,
         actions: response.data.actions,
+        // ✅ ColorVariants từ chatbot response
+        colorVariants: response.data.colorVariants,
       };
 
       setMessages((prev) => [...prev, botMessage]);
@@ -513,10 +534,19 @@ const AIChatbot = () => {
                                 <button
                                   key={idx}
                                   className={`chat-action-btn ${action.type}`}
+                                  style={
+                                    action.color
+                                      ? {
+                                          background: action.color,
+                                          color: "#fff",
+                                        }
+                                      : {}
+                                  }
                                   onClick={() =>
                                     handleAction(
                                       action.type,
-                                      message.product._id
+                                      message.product._id,
+                                      message // ✅ Truyền message object
                                     )
                                   }
                                   disabled={!message.product._id}
@@ -639,19 +669,65 @@ const AIChatbot = () => {
                   )}
                 </h4>
                 <div className="variant-options">
-                  {availableColors.map((color) => (
-                    <button
-                      key={color}
-                      className={`variant-option ${
-                        selectedVariant.color === color ? "selected" : ""
-                      }`}
-                      onClick={() =>
-                        setSelectedVariant({ ...selectedVariant, color })
-                      }
-                    >
-                      {color}
-                    </button>
-                  ))}
+                  {variantModalData?.colorVariants &&
+                  variantModalData.colorVariants.length > 0
+                    ? // Hiển thị với thông tin đầy đủ từ colorVariants
+                      variantModalData.colorVariants.map((variant) => (
+                        <button
+                          key={variant._id || variant.color}
+                          className={`variant-option color-variant-option ${
+                            selectedVariant.color === variant.color
+                              ? "selected"
+                              : ""
+                          }`}
+                          onClick={() =>
+                            setSelectedVariant({
+                              ...selectedVariant,
+                              color: variant.color,
+                            })
+                          }
+                          disabled={variant.stock === 0}
+                        >
+                          <div className="color-option-content">
+                            {variant.colorCode && (
+                              <span
+                                className="color-preview"
+                                style={{ backgroundColor: variant.colorCode }}
+                              />
+                            )}
+                            <span className="color-name">{variant.color}</span>
+                          </div>
+                          {variant.stock !== undefined && (
+                            <span
+                              className={`stock-info ${
+                                variant.stock === 0
+                                  ? "out-of-stock"
+                                  : variant.stock < 5
+                                  ? "low-stock"
+                                  : ""
+                              }`}
+                            >
+                              {variant.stock === 0
+                                ? "Hết hàng"
+                                : `Còn ${variant.stock}`}
+                            </span>
+                          )}
+                        </button>
+                      ))
+                    : // Fallback: Hiển thị đơn giản nếu không có colorVariants
+                      availableColors.map((color) => (
+                        <button
+                          key={color}
+                          className={`variant-option ${
+                            selectedVariant.color === color ? "selected" : ""
+                          }`}
+                          onClick={() =>
+                            setSelectedVariant({ ...selectedVariant, color })
+                          }
+                        >
+                          {color}
+                        </button>
+                      ))}
                 </div>
               </div>
             )}

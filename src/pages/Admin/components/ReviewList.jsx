@@ -350,8 +350,20 @@ const ReviewList = () => {
                       </td>
                       <td>
                         <div className="reviewer-info">
-                          <div className="reviewer-name">{review.name}</div>
-                          <div className="reviewer-email">{review.email}</div>
+                          <div className="reviewer-name">
+                            {review.userId?.fullName ||
+                              review.userId?.name ||
+                              review.user?.fullName ||
+                              review.user?.name ||
+                              review.name ||
+                              "Khách hàng"}
+                          </div>
+                          <div className="reviewer-email">
+                            {review.userId?.email ||
+                              review.user?.email ||
+                              review.email ||
+                              "N/A"}
+                          </div>
                         </div>
                       </td>
                       <td>
@@ -550,11 +562,23 @@ const ReviewList = () => {
               <div className="review-detail-info">
                 <div className="info-row">
                   <label>Người đánh giá:</label>
-                  <span>{selectedReview.name}</span>
+                  <span>
+                    {selectedReview.userId?.fullName ||
+                      selectedReview.userId?.name ||
+                      selectedReview.user?.fullName ||
+                      selectedReview.user?.name ||
+                      selectedReview.name ||
+                      "Khách hàng"}
+                  </span>
                 </div>
                 <div className="info-row">
                   <label>Email:</label>
-                  <span>{selectedReview.email}</span>
+                  <span>
+                    {selectedReview.userId?.email ||
+                      selectedReview.user?.email ||
+                      selectedReview.email ||
+                      "N/A"}
+                  </span>
                 </div>
                 <div className="info-row">
                   <label>Đánh giá:</label>
