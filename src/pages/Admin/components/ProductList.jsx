@@ -24,6 +24,7 @@ const ProductList = () => {
     maxPrice: "",
     minDiscount: "",
     maxDiscount: "",
+    stockStatus: "", // Trạng thái kho: all, low (<=5), medium (6-20), high (>20)
   });
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -90,6 +91,14 @@ const ProductList = () => {
     }
     if (filters.maxDiscount !== "" && filters.maxDiscount != null) {
       if (discountValue > Number(filters.maxDiscount)) return false;
+    }
+    // Lọc theo trạng thái kho
+    if (filters.stockStatus) {
+      const stock = Number(sp.stock ?? 0);
+      if (filters.stockStatus === "low" && stock > 5) return false;
+      if (filters.stockStatus === "medium" && (stock <= 5 || stock > 20))
+        return false;
+      if (filters.stockStatus === "high" && stock <= 20) return false;
     }
     return true;
   });
@@ -604,6 +613,18 @@ const ProductList = () => {
               }
               style={{ width: 120 }}
             />
+            <select
+              value={filters.stockStatus}
+              onChange={(e) =>
+                setFilters((f) => ({ ...f, stockStatus: e.target.value }))
+              }
+              style={{ width: 140 }}
+            >
+              <option value="">-- Trạng thái kho --</option>
+              <option value="low">🔴 Hết hàng (≤5)</option>
+              <option value="medium">🟡 Sắp hết (6-20)</option>
+              <option value="high">🟢 Còn nhiều (>20)</option>
+            </select>
             <button
               onClick={() =>
                 setFilters({
@@ -614,6 +635,7 @@ const ProductList = () => {
                   maxPrice: "",
                   minDiscount: "",
                   maxDiscount: "",
+                  stockStatus: "",
                 })
               }
             >

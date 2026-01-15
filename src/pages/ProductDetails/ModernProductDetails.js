@@ -229,14 +229,24 @@ const ModernProductDetails = () => {
     const fetchComments = async () => {
       try {
         const response = await getCommentsProduct(id);
-        const commentsData = response.data.data || [];
-        setComments(commentsData);
+        // Backend trả về {docs: Array} nên cần lấy docs
+        const responseData = response.data.data || {};
+        const commentsData = responseData.docs || responseData || [];
 
-        commentsData.forEach((comment) => {
-          fetchRepliesForComment(comment._id);
-        });
+        // Đảm bảo comments luôn là array
+        if (Array.isArray(commentsData)) {
+          setComments(commentsData);
+
+          commentsData.forEach((comment) => {
+            fetchRepliesForComment(comment._id);
+          });
+        } else {
+          console.error("Comments data is not an array:", commentsData);
+          setComments([]);
+        }
       } catch (error) {
         console.error("Error fetching comments:", error);
+        setComments([]); // Set empty array on error
       }
     };
 
@@ -275,21 +285,34 @@ const ModernProductDetails = () => {
     try {
       await createCommentProduct(id, form);
       const updatedComments = await getCommentsProduct(id);
-      setComments(updatedComments.data.data);
 
-      (updatedComments.data.data || []).forEach((comment) => {
-        fetchRepliesForComment(comment._id);
-      });
+      // Backend trả về {docs: Array} nên cần lấy docs
+      const responseData = updatedComments.data.data || {};
+      const commentsData = responseData.docs || responseData || [];
+
+      if (Array.isArray(commentsData)) {
+        setComments(commentsData);
+
+        commentsData.forEach((comment) => {
+          fetchRepliesForComment(comment._id);
+        });
+      } else {
+        console.error("Comments data is not an array:", commentsData);
+        setComments([]);
+      }
 
       setForm({ content: "", rating: 5 });
       alert("Đánh giá của bạn đã được gửi thành công!");
     } catch (error) {
       console.error("Error creating comment:", error);
+      console.error("Error response:", error.response?.data);
       if (error.response?.status === 401) {
         alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!");
         navigate("/login");
       } else {
-        alert("Có lỗi xảy ra khi gửi đánh giá!");
+        const errorMessage =
+          error.response?.data?.message || "Có lỗi xảy ra khi gửi đánh giá!";
+        alert(errorMessage);
       }
     }
   };
@@ -1119,29 +1142,55 @@ const ModernProductDetails = () => {
           <div className="comment-form-section">
             <h4>Bạn có vấn đề cần tư vấn?</h4>
             {isLoggedIn ? (
-              <form onSubmit={handleSubmit} className="comment-form">
-                <div className="rating-input">
-                  <label>Đánh giá của bạn:</label>
-                  {renderStarRating(form.rating, true, (rating) =>
-                    setForm({ ...form, rating })
-                  )}
-                </div>
-                <div className="form-group">
-                  <textarea
-                    name="content"
-                    value={form.content}
-                    onChange={handleChange}
-                    placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..."
-                    required
-                    rows={4}
-                    className="form-control"
-                  />
-                </div>
-                <button type="submit" className="btn btn-submit-review">
-                  <i className="fas fa-paper-plane"></i>
-                  Gửi câu hỏi
-                </button>
-              </form>
+              (() => {
+                // Kiểm tra xem user hiện tại đã đánh giá chưa
+                const hasReviewed =
+                  Array.isArray(comments) &&
+                  comments.some(
+                    (comment) =>
+                      comment.userId?._id === currentUser?._id ||
+                      comment.userId === currentUser?._id ||
+                      comment.user?._id === currentUser?._id
+                  );
+
+                if (hasReviewed) {
+                  return (
+                    <div className="already-reviewed-notice">
+                      <i className="fas fa-check-circle"></i>
+                      <p>
+                        Bạn đã đánh giá sản phẩm này rồi. Cảm ơn phản hồi của
+                        bạn!
+                      </p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <form onSubmit={handleSubmit} className="comment-form">
+                    <div className="rating-input">
+                      <label>Đánh giá của bạn:</label>
+                      {renderStarRating(form.rating, true, (rating) =>
+                        setForm({ ...form, rating })
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <textarea
+                        name="content"
+                        value={form.content}
+                        onChange={handleChange}
+                        placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..."
+                        required
+                        rows={4}
+                        className="form-control"
+                      />
+                    </div>
+                    <button type="submit" className="btn btn-submit-review">
+                      <i className="fas fa-paper-plane"></i>
+                      Gửi câu hỏi
+                    </button>
+                  </form>
+                );
+              })()
             ) : (
               <div className="login-prompt">
                 <p>Vui lòng đăng nhập để gửi câu hỏi và đánh giá sản phẩm</p>
@@ -1157,7 +1206,7 @@ const ModernProductDetails = () => {
           </div>
 
           <div className="comments-list-section">
-            {comments.length > 0 ? (
+            {Array.isArray(comments) && comments.length > 0 ? (
               comments.map((comment) => {
                 // Lấy thông tin user từ các nguồn khác nhau
                 const userName =
@@ -1176,10 +1225,8 @@ const ModernProductDetails = () => {
                   currentUser?.email ||
                   "email@example.com";
 
-                // Kiểm tra xem có phải khách hàng đã mua hàng không (có userId hoặc user object)
-                const isVerifiedCustomer = !!(
-                  comment.userId || comment.user?._id
-                );
+                // Sử dụng field hasPurchased từ backend để xác định khách đã mua hàng
+                const isVerifiedCustomer = comment.hasPurchased === true;
 
                 return (
                   <div key={comment._id} className="comment-item-card">

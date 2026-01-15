@@ -10,13 +10,34 @@ const CustomerReview = () => {
   useEffect(() => {
     getAllComments()
       .then((res) => {
-        // Lấy đúng trường data là mảng đánh giá
-        let arr = Array.isArray(res.data?.data) ? res.data.data : [];
+        let arr = [];
+
+        if (res.data?.status === "success" && res.data?.data) {
+          if (Array.isArray(res.data.data.docs)) {
+            arr = res.data.data.docs;
+          } else if (Array.isArray(res.data.data.comments)) {
+            arr = res.data.data.comments;
+          } else if (Array.isArray(res.data.data)) {
+            arr = res.data.data;
+          } else if (Array.isArray(res.data.data.results)) {
+            arr = res.data.data.results;
+          }
+        } else if (Array.isArray(res.data?.data)) {
+          arr = res.data.data;
+        } else if (Array.isArray(res.data)) {
+          arr = res.data;
+        } else if (res.data?.comments && Array.isArray(res.data.comments)) {
+          arr = res.data.comments;
+        }
+
         setReviews(arr);
         setLoading(false);
       })
       .catch((err) => {
-        setError("Không thể tải đánh giá khách hàng.");
+        setError(
+          "Không thể tải đánh giá khách hàng: " +
+            (err.response?.data?.message || err.message)
+        );
         setLoading(false);
       });
   }, []);
@@ -103,7 +124,6 @@ const CustomerReview = () => {
           ))
         )}
       </div>
-
     </div>
   );
 };

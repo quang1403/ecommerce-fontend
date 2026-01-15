@@ -33,8 +33,11 @@ const ReviewList = () => {
     try {
       setLoading(true);
       const productsRes = await getProducts();
+
       const productList = Array.isArray(productsRes.data?.data)
         ? productsRes.data.data
+        : Array.isArray(productsRes.data)
+        ? productsRes.data
         : [];
       setProducts(productList);
 
@@ -43,14 +46,34 @@ const ReviewList = () => {
       for (const product of productList) {
         try {
           const reviewsRes = await getCommentsProduct(product._id);
-          const productReviews = Array.isArray(reviewsRes.data?.data)
-            ? reviewsRes.data.data
-            : [];
+          let productReviews = [];
+
+          if (reviewsRes.data?.status === "success" && reviewsRes.data?.data) {
+            if (Array.isArray(reviewsRes.data.data.docs)) {
+              productReviews = reviewsRes.data.data.docs;
+            } else if (Array.isArray(reviewsRes.data.data.comments)) {
+              productReviews = reviewsRes.data.data.comments;
+            } else if (Array.isArray(reviewsRes.data.data)) {
+              productReviews = reviewsRes.data.data;
+            } else if (Array.isArray(reviewsRes.data.data.results)) {
+              productReviews = reviewsRes.data.data.results;
+            }
+          } else if (Array.isArray(reviewsRes.data?.data)) {
+            productReviews = reviewsRes.data.data;
+          } else if (Array.isArray(reviewsRes.data)) {
+            productReviews = reviewsRes.data;
+          } else if (
+            reviewsRes.data?.comments &&
+            Array.isArray(reviewsRes.data.comments)
+          ) {
+            productReviews = reviewsRes.data.comments;
+          }
+
           productReviews.forEach((review) => {
             allReviews.push({
               ...review,
               product: product,
-              status: review.status || "pending", // Default status
+              status: review.status || "pending",
             });
           });
         } catch (err) {
@@ -351,12 +374,33 @@ const ReviewList = () => {
                       <td>
                         <div className="reviewer-info">
                           <div className="reviewer-name">
-                            {review.userId?.fullName ||
-                              review.userId?.name ||
-                              review.user?.fullName ||
-                              review.user?.name ||
-                              review.name ||
-                              "Khách hàng"}
+                            <span>
+                              {review.userId?.fullName ||
+                                review.userId?.name ||
+                                review.user?.fullName ||
+                                review.user?.name ||
+                                review.name ||
+                                "Khách hàng"}
+                            </span>
+                            {review.hasPurchased === true && (
+                              <span
+                                className="customer-badge verified"
+                                title="Khách hàng đã mua hàng tại Phone Store"
+                                style={{
+                                  display: "inline-block",
+                                  marginLeft: "8px",
+                                  padding: "3px 8px",
+                                  backgroundColor: "#4caf50",
+                                  color: "white",
+                                  borderRadius: "12px",
+                                  fontSize: "11px",
+                                  fontWeight: "600",
+                                }}
+                              >
+                                <i className="fas fa-check-circle"></i> Đã mua
+                                hàng
+                              </span>
+                            )}
                           </div>
                           <div className="reviewer-email">
                             {review.userId?.email ||

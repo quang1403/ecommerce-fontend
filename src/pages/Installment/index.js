@@ -4,6 +4,7 @@ import {
   calculateInstallment,
   getProductById,
   createOrder,
+  uploadImages,
 } from "../../services/Api";
 import { getImageProduct } from "../../shared/utils";
 
@@ -79,6 +80,14 @@ function InstallmentPage() {
     incomeProof: null,
   });
 
+  // URLs của ảnh đã upload lên server
+  const [uploadedUrls, setUploadedUrls] = useState({
+    idCardFront: "",
+    idCardBack: "",
+    householdBook: "",
+    incomeProof: "",
+  });
+
   const [transactionId, setTransactionId] = useState("");
   const [result, setResult] = useState(null);
 
@@ -111,11 +120,33 @@ function InstallmentPage() {
     fetchProduct();
   }, [productId, location.state]);
 
-  const handleFileUpload = (field, file) => {
+  const handleFileUpload = async (field, file) => {
+    if (!file) return;
+
     setUploadedFiles((prev) => ({
       ...prev,
       [field]: file,
     }));
+
+    try {
+      // Upload file lên server ngay
+      const res = await uploadImages([file]);
+
+      // Backend trả về: { data: ['/uploads/xxx.jpg'] }
+      if (res.data && res.data.data && res.data.data.length > 0) {
+        // Lưu URL vào state
+        const uploadedUrl = res.data.data[0];
+        setUploadedUrls((prev) => ({
+          ...prev,
+          [field]: uploadedUrl,
+        }));
+        alert(`Upload ${field} thành công!`);
+      } else {
+        alert(`Lỗi: Server không trả về URL cho ${field}`);
+      }
+    } catch (err) {
+      alert(`Lỗi upload ${field}: ${err.response?.data?.error || err.message}`);
+    }
   };
 
   const handleCalculate = async () => {
@@ -241,14 +272,14 @@ function InstallmentPage() {
           transactionId: type === "creditCard" ? transactionId : "",
           financeStatus: "pending",
           customerInfo: type === "creditCard" ? cardInfo : financeInfo,
-          // Thêm thông tin file upload cho công ty tài chính
+          // Thêm thông tin file upload cho công ty tài chính (gửi URLs đã upload)
           uploadedDocuments:
             type === "financeCompany"
               ? {
-                  idCardFront: uploadedFiles.idCardFront?.name || "",
-                  idCardBack: uploadedFiles.idCardBack?.name || "",
-                  householdBook: uploadedFiles.householdBook?.name || "",
-                  incomeProof: uploadedFiles.incomeProof?.name || "",
+                  idCardFront: uploadedUrls.idCardFront || "",
+                  idCardBack: uploadedUrls.idCardBack || "",
+                  householdBook: uploadedUrls.householdBook || "",
+                  incomeProof: uploadedUrls.incomeProof || "",
                 }
               : null,
         },

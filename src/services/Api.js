@@ -1,12 +1,8 @@
 import Http from "./Http";
 // Lấy toàn bộ đánh giá khách hàng
 export const getAllComments = () => {
-  const token = localStorage.getItem("accessToken");
-  return Http.get("/comments", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  // Http interceptor sẽ tự động thêm token
+  return Http.get("/comments");
 };
 
 // Lấy danh sách đơn hàng
@@ -268,8 +264,14 @@ export const createCommentProduct = (id, data) => {
   });
 };
 
-export const deleteComment = (commentId) =>
-  Http.delete(`/comments/${commentId}`);
+export const deleteComment = (commentId) => {
+  const token = localStorage.getItem("accessToken");
+  return Http.delete(`/comments/admin/${commentId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
 
 // Reply to comment
 export const replyToComment = (commentId, replyData) => {

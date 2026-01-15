@@ -1173,11 +1173,11 @@ const Statistics = () => {
       XLSX.writeFile(wb, fileName);
 
       alert(
-        "✅ Xuất báo cáo toàn bộ thành công!\n\nFile bao gồm 9 sheet dữ liệu chi tiết."
+        "Xuất báo cáo toàn bộ thành công!\n\nFile bao gồm 9 sheet dữ liệu chi tiết."
       );
     } catch (error) {
-      console.error("❌ Lỗi khi xuất báo cáo:", error);
-      alert("❌ Có lỗi xảy ra khi xuất báo cáo. Vui lòng thử lại!");
+      console.error("Lỗi khi xuất báo cáo:", error);
+      alert("Có lỗi xảy ra khi xuất báo cáo. Vui lòng thử lại!");
     }
   };
 
@@ -1226,13 +1226,6 @@ const Statistics = () => {
             }}
           >
             📥 Xuất báo cáo
-          </button>
-          <button
-            onClick={fetchStatisticsData}
-            className="refresh-btn"
-            title="Làm mới dữ liệu"
-          >
-            🔄 Làm mới
           </button>
           <select
             value={timeFilter}

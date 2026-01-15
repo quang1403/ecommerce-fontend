@@ -12,6 +12,33 @@ const InstallmentOrders = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [zoomedImage, setZoomedImage] = useState(null);
+  const [imageZoomLevel, setImageZoomLevel] = useState(1);
+
+  // Helper function để tạo full URL cho ảnh
+  const getImageUrl = (path) => {
+    if (!path) return "";
+    if (path.startsWith("http")) return path;
+    return `http://localhost:5000${path}`;
+  };
+
+  const handleImageZoom = (imageUrl, imageName) => {
+    setZoomedImage({ url: imageUrl, name: imageName });
+    setImageZoomLevel(1);
+  };
+
+  const handleZoomIn = () => {
+    setImageZoomLevel((prev) => Math.min(prev + 0.25, 3));
+  };
+
+  const handleZoomOut = () => {
+    setImageZoomLevel((prev) => Math.max(prev - 0.25, 0.5));
+  };
+
+  const handleCloseZoom = () => {
+    setZoomedImage(null);
+    setImageZoomLevel(1);
+  };
 
   useEffect(() => {
     fetchInstallmentOrders();
@@ -368,57 +395,175 @@ const InstallmentOrders = () => {
                 selectedOrder.installment?.uploadedDocuments && (
                   <section className="detail-section">
                     <h4>Giấy tờ đã upload</h4>
-                    <div className="documents-list">
+                    <div className="documents-grid">
                       {selectedOrder.installment.uploadedDocuments
                         .idCardFront && (
-                        <div className="document-item">
-                          <span className="document-icon">📄</span>
-                          <span className="document-name">
-                            CMND/CCCD (Mặt trước):{" "}
-                            {
-                              selectedOrder.installment.uploadedDocuments
-                                .idCardFront
-                            }
-                          </span>
+                        <div className="document-card">
+                          <div className="document-label">
+                            📄 CMND/CCCD (Mặt trước)
+                          </div>
+                          <div className="document-preview">
+                            <img
+                              src={getImageUrl(
+                                selectedOrder.installment.uploadedDocuments
+                                  .idCardFront
+                              )}
+                              alt="CMND/CCCD Mặt trước"
+                              onClick={() =>
+                                handleImageZoom(
+                                  getImageUrl(
+                                    selectedOrder.installment.uploadedDocuments
+                                      .idCardFront
+                                  ),
+                                  "CMND/CCCD (Mặt trước)"
+                                )
+                              }
+                              style={{ cursor: "pointer" }}
+                            />
+                          </div>
+                          <div className="document-actions">
+                            <button
+                              onClick={() =>
+                                handleImageZoom(
+                                  getImageUrl(
+                                    selectedOrder.installment.uploadedDocuments
+                                      .idCardFront
+                                  ),
+                                  "CMND/CCCD (Mặt trước)"
+                                )
+                              }
+                              className="btn-view-doc"
+                            >
+                              🔍 Xem ảnh
+                            </button>
+                          </div>
                         </div>
                       )}
                       {selectedOrder.installment.uploadedDocuments
                         .idCardBack && (
-                        <div className="document-item">
-                          <span className="document-icon">📄</span>
-                          <span className="document-name">
-                            CMND/CCCD (Mặt sau):{" "}
-                            {
-                              selectedOrder.installment.uploadedDocuments
-                                .idCardBack
-                            }
-                          </span>
+                        <div className="document-card">
+                          <div className="document-label">
+                            📄 CMND/CCCD (Mặt sau)
+                          </div>
+                          <div className="document-preview">
+                            <img
+                              src={getImageUrl(
+                                selectedOrder.installment.uploadedDocuments
+                                  .idCardBack
+                              )}
+                              alt="CMND/CCCD Mặt sau"
+                              onClick={() =>
+                                handleImageZoom(
+                                  getImageUrl(
+                                    selectedOrder.installment.uploadedDocuments
+                                      .idCardBack
+                                  ),
+                                  "CMND/CCCD (Mặt sau)"
+                                )
+                              }
+                              style={{ cursor: "pointer" }}
+                            />
+                          </div>
+                          <div className="document-actions">
+                            <button
+                              onClick={() =>
+                                handleImageZoom(
+                                  getImageUrl(
+                                    selectedOrder.installment.uploadedDocuments
+                                      .idCardBack
+                                  ),
+                                  "CMND/CCCD (Mặt sau)"
+                                )
+                              }
+                              className="btn-view-doc"
+                            >
+                              🔍 Xem ảnh
+                            </button>
+                          </div>
                         </div>
                       )}
                       {selectedOrder.installment.uploadedDocuments
                         .householdBook && (
-                        <div className="document-item">
-                          <span className="document-icon">📄</span>
-                          <span className="document-name">
-                            Sổ hộ khẩu:{" "}
-                            {
-                              selectedOrder.installment.uploadedDocuments
-                                .householdBook
-                            }
-                          </span>
+                        <div className="document-card">
+                          <div className="document-label">📄 Sổ hộ khẩu</div>
+                          <div className="document-preview">
+                            <img
+                              src={getImageUrl(
+                                selectedOrder.installment.uploadedDocuments
+                                  .householdBook
+                              )}
+                              alt="Sổ hộ khẩu"
+                              onClick={() =>
+                                handleImageZoom(
+                                  getImageUrl(
+                                    selectedOrder.installment.uploadedDocuments
+                                      .householdBook
+                                  ),
+                                  "Sổ hộ khẩu"
+                                )
+                              }
+                              style={{ cursor: "pointer" }}
+                            />
+                          </div>
+                          <div className="document-actions">
+                            <button
+                              onClick={() =>
+                                handleImageZoom(
+                                  getImageUrl(
+                                    selectedOrder.installment.uploadedDocuments
+                                      .householdBook
+                                  ),
+                                  "Sổ hộ khẩu"
+                                )
+                              }
+                              className="btn-view-doc"
+                            >
+                              🔍 Xem ảnh
+                            </button>
+                          </div>
                         </div>
                       )}
                       {selectedOrder.installment.uploadedDocuments
                         .incomeProof && (
-                        <div className="document-item">
-                          <span className="document-icon">📄</span>
-                          <span className="document-name">
-                            Giấy tờ thu nhập:{" "}
-                            {
-                              selectedOrder.installment.uploadedDocuments
-                                .incomeProof
-                            }
-                          </span>
+                        <div className="document-card">
+                          <div className="document-label">
+                            📄 Giấy tờ thu nhập
+                          </div>
+                          <div className="document-preview">
+                            <img
+                              src={getImageUrl(
+                                selectedOrder.installment.uploadedDocuments
+                                  .incomeProof
+                              )}
+                              alt="Giấy tờ thu nhập"
+                              onClick={() =>
+                                handleImageZoom(
+                                  getImageUrl(
+                                    selectedOrder.installment.uploadedDocuments
+                                      .incomeProof
+                                  ),
+                                  "Giấy tờ thu nhập"
+                                )
+                              }
+                              style={{ cursor: "pointer" }}
+                            />
+                          </div>
+                          <div className="document-actions">
+                            <button
+                              onClick={() =>
+                                handleImageZoom(
+                                  getImageUrl(
+                                    selectedOrder.installment.uploadedDocuments
+                                      .incomeProof
+                                  ),
+                                  "Giấy tờ thu nhập"
+                                )
+                              }
+                              className="btn-view-doc"
+                            >
+                              🔍 Xem ảnh
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -473,6 +618,42 @@ const InstallmentOrders = () => {
                   Đóng
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Zoom Modal */}
+      {zoomedImage && (
+        <div className="image-zoom-modal" onClick={handleCloseZoom}>
+          <div
+            className="zoom-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="zoom-header">
+              <h3>{zoomedImage.name}</h3>
+              <button className="zoom-close-btn" onClick={handleCloseZoom}>
+                ✕
+              </button>
+            </div>
+            <div className="zoom-controls">
+              <button onClick={handleZoomOut} className="zoom-btn">
+                ➖ Thu nhỏ
+              </button>
+              <span className="zoom-level">
+                {Math.round(imageZoomLevel * 100)}%
+              </span>
+              <button onClick={handleZoomIn} className="zoom-btn">
+                ➕ Phóng to
+              </button>
+            </div>
+            <div className="zoom-image-container">
+              <img
+                src={zoomedImage.url}
+                alt={zoomedImage.name}
+                style={{ transform: `scale(${imageZoomLevel})` }}
+                className="zoomed-image"
+              />
             </div>
           </div>
         </div>

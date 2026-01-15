@@ -80,8 +80,6 @@ const OrderManagement = ({ showToast, refreshUpdates }) => {
         getProducts(),
       ]);
 
-      console.log("📦 Admin API Response:", ordersRes); // Debug API response
-
       let orderList = [];
       // Xử lý response dựa trên cấu trúc API admin trả về
       if (ordersRes.data && Array.isArray(ordersRes.data.orders)) {
@@ -101,8 +99,6 @@ const OrderManagement = ({ showToast, refreshUpdates }) => {
       } else if (Array.isArray(productsRes.data)) {
         productList = productsRes.data;
       }
-
-      console.log("📋 Products loaded:", productList.length);
 
       // Tạo map sản phẩm theo ID để lookup nhanh
       const productMap = {};
@@ -131,11 +127,15 @@ const OrderManagement = ({ showToast, refreshUpdates }) => {
         return order;
       });
 
-      console.log("📋 Admin Orders loaded:", enrichedOrders.length); // Debug orders count
-      console.log("📋 Sample enriched order:", enrichedOrders[0]); // Debug first order
+      // Sắp xếp đơn hàng mới nhất trước (giảm dần theo createdAt)
+      const sortedOrders = enrichedOrders.sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.updatedAt || 0);
+        const dateB = new Date(b.createdAt || b.updatedAt || 0);
+        return dateB - dateA; // Giảm dần: mới nhất trước
+      });
 
-      setOrders(enrichedOrders);
-      setFilteredOrders(enrichedOrders); // Initialize filtered orders
+      setOrders(sortedOrders);
+      setFilteredOrders(sortedOrders); // Initialize filtered orders
     } catch (err) {
       console.error("❌ Error fetching admin orders:", err);
       console.error("Error details:", err.response?.data || err.message);
