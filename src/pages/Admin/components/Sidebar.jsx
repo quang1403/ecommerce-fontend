@@ -13,9 +13,11 @@ const menu = [
   },
   { ten: "Khách hàng" },
   { ten: "Sản phẩm" },
+  { ten: "Tồn kho" }, // Thêm menu Tồn kho
   { ten: "Đánh giá sản phẩm" },
   { ten: "Thống kê" },
   { ten: "Quản lý tin tức" },
+  { ten: "Quản lý bảo hành" }, // Tab 9
 ];
 
 const Sidebar = ({ tab, setTab, showToast }) => {

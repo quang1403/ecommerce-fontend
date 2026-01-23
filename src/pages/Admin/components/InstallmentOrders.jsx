@@ -133,7 +133,7 @@ const InstallmentOrders = () => {
   return (
     <div className="installment-orders-container">
       <div className="installment-orders-header">
-        <h2>Quản lý đơn hàng trả góp</h2>
+        <h2 style={{ fontSize: "20px" }}>Quản lý đơn hàng trả góp</h2>
         <div className="filter-group">
           <label>Trạng thái:</label>
           <select

@@ -58,22 +58,27 @@ const ModernFooter = () => {
                 thị trường. Uy tín - Chất lượng - Bảo hành tận tâm.
               </p>
 
-              <div className="contact-info">
-                <div className="contact-item">
-                  <i className="fas fa-map-marker-alt"></i>
-                  <span>123 Nguyễn Văn Linh, Hoàng Mai, Hà Nội</span>
-                </div>
-                <div className="contact-item">
-                  <i className="fas fa-phone"></i>
-                  <span>1900 1234</span>
-                </div>
-                <div className="contact-item">
-                  <i className="fas fa-envelope"></i>
-                  <span>support@phonestore.vn</span>
-                </div>
-                <div className="contact-item">
-                  <i className="fas fa-clock"></i>
-                  <span>8:00 - 22:00 (Tất cả các ngày)</span>
+              <div className="store-location">
+                <div className="map-wrapper">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3725.2925857033434!2d105.81873231476256!3d20.981387986023745!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135acc508e47f4f%3A0x8cd595b6c78b490e!2zMTIzIE5ndXnhu4VuIFbEg24gTGluaCwgSG/DoG5nIE1haSwgSMOgIE7hu5lpLCBWaeG7h3QgTmFt!5e0!3m2!1svi!2s!4v1642506789123!5m2!1svi!2s"
+                    width="100%"
+                    height="250"
+                    style={{ border: 0, borderRadius: "8px" }}
+                    allowFullScreen=""
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Vị trí cửa hàng PhoneStore"
+                  ></iframe>
+                  <a
+                    href="https://www.google.com/maps/dir/?api=1&destination=123+Nguyễn+Văn+Linh,+Hoàng+Mai,+Hà+Nội"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="direction-overlay-btn"
+                  >
+                    <i className="fas fa-directions"></i>
+                    Chỉ đường
+                  </a>
                 </div>
               </div>
 
@@ -261,7 +266,8 @@ const ModernFooter = () => {
             <div className="copyright">
               <p>© {currentYear} PhoneStore. Tất cả quyền được bảo lưu.</p>
               <p>
-                Giấy CNĐKDN: 0123456789 do Sở KH&ĐT TP.Hà Nội cấp ngày 01/01/2020
+                Giấy CNĐKDN: 0123456789 do Sở KH&ĐT TP.Hà Nội cấp ngày
+                01/01/2020
               </p>
             </div>
 

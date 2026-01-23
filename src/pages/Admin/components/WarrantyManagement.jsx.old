@@ -1,0 +1,411 @@
+import React, { useState, useEffect } from "react";
+import {
+  getWarrantyList,
+  getWarrantyStats,
+  getWarrantyDetail,
+  createWarranty,
+  createWarrantyClaim,
+  updateWarrantyClaim,
+  voidWarranty,
+  checkWarrantyByCode,
+  checkWarrantyByIMEI,
+} from "../../../services/Api";
+import "../styles/WarrantyManagement.css";
+
+const WarrantyManagement = () => {
+  const [warrantyItems, setWarrantyItems] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [showClaimForm, setShowClaimForm] = useState(false);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pages: 1,
+    total: 0,
+  });
+  const pageSize = 20;
+
+  useEffect(() => {
+    fetchWarrantyData();
+    fetchStats();
+  }, [pagination.page, statusFilter, searchTerm]);
+
+  const fetchStats = async () => {
+    try {
+      const response = await getWarrantyStats();
+      if (response.data.success) {
+        setStats(response.data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching stats:", err);
+    }
+  };
+
+  const fetchWarrantyData = async () => {
+    try {
+      setLoading(true);
+      const params = {
+        page: pagination.page,
+        limit: pageSize,
+      };
+
+      if (statusFilter) params.status = statusFilter;
+      if (searchTerm.trim()) params.search = searchTerm.trim();
+
+      const response = await getWarrantyList(params);
+
+      if (response.data.success) {
+        setWarrantyItems(response.data.data || []);
+        setPagination(response.data.pagination);
+      } else {
+        setError("Không thể tải dữ liệu bảo hành");
+      }
+    } catch (err) {
+      setError("Có lỗi xảy ra khi tải dữ liệu bảo hành");
+      console.error("Error fetching warranty data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("vi-VN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("vi-VN").format(price);
+  };
+
+  const getWarrantyStatus = (daysRemaining) => {
+    if (daysRemaining > 30) return { text: "Còn hạn", class: "valid" };
+    if (daysRemaining > 0) return { text: "Sắp hết hạn", class: "expiring" };
+    return { text: "Hết hạn", class: "expired" };
+  };
+
+  if (loading) {
+    return (
+      <div className="warranty-management">
+        <div className="warranty-loading">
+          <div className="loading-spinner"></div>
+          <p>Đang tải dữ liệu bảo hành...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="warranty-management">
+        <div className="warranty-error">
+          <i className="fas fa-exclamation-triangle"></i>
+          <p>{error}</p>
+          <button onClick={fetchWarrantyData} className="retry-btn">
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="warranty-management">
+      <div className="warranty-header">
+        <div className="header-left">
+          <h2>🛡️ Tra cứu bảo hành</h2>
+          <p>Quản lý và tra cứu thông tin bảo hành sản phẩm</p>
+        </div>
+        <div className="warranty-stats">
+          <div className="stat-card valid">
+            <div className="stat-number">{stats?.active || 0}</div>
+            <div className="stat-label">Còn hạn</div>
+          </div>
+          <div className="stat-card expiring">
+            <div className="stat-number">{stats?.expiringSoon || 0}</div>
+            <div className="stat-label">Sắp hết</div>
+          </div>
+          <div className="stat-card expired">
+            <div className="stat-number">{stats?.expired || 0}</div>
+            <div className="stat-label">Hết hạn</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter Bar */}
+      <div className="warranty-filter-bar">
+        <div className="filter-row">
+          <input
+            type="text"
+            placeholder="🔍 Tìm kiếm theo tên sản phẩm, mã đơn, serial, khách hàng..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="filter-select"
+          >
+            <option value="">Tất cả trạng thái</option>
+            <option value="active">Còn hạn</option>
+            <option value="expired">Hết hạn</option>
+            <option value="void">Đã hủy</option>
+          </select>
+          <button
+            className="clear-filter-btn"
+            onClick={() => {
+              setSearchTerm("");
+              setStatusFilter("");
+            }}
+          >
+            Xóa bộ lọc
+          </button>
+        </div>
+      </div>
+
+      {/* Warranty Table */}
+      {warrantyItems.length === 0 ? (
+        <div className="warranty-empty">
+          <i className="fas fa-box-open"></i>
+          <h3>Không tìm thấy dữ liệu</h3>
+          <p>Không có sản phẩm bảo hành nào phù hợp với bộ lọc</p>
+        </div>
+      ) : (
+        <>
+          <div className="warranty-table-wrapper">
+            <table className="warranty-table">
+              <thead>
+                <tr>
+                  <th>Mã BH</th>
+                  <th>Sản phẩm</th>
+                  <th>Khách hàng</th>
+                  <th>IMEI</th>
+                  <th>Ngày BĐ</th>
+                  <th>Hết hạn</th>
+                  <th>Trạng thái</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                {warrantyItems.map((item, index) => {
+                  const daysRemaining = item.daysRemaining || 0;
+                  const status = getWarrantyStatus(daysRemaining);
+
+                  return (
+                    <tr key={item._id || index}>
+                      <td>
+                        <span className="order-code">{item.warrantyCode}</span>
+                      </td>
+                      <td>
+                        <div className="product-info">
+                          <div className="product-name">{item.productName}</div>
+                          <div className="product-detail">
+                            {item.color} - {item.ram} / {item.storage}
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="customer-info">
+                          <div className="customer-name">
+                            {item.customer?.name || "N/A"}
+                          </div>
+                          <div className="customer-email">
+                            {item.customer?.phone || "N/A"}
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span className="serial-number">
+                          {item.imei || "Chưa có"}
+                        </span>
+                      </td>
+                      <td>{formatDate(item.startDate)}</td>
+                      <td>{formatDate(item.endDate)}</td>
+                      <td>
+                        <div className={`warranty-status ${status.class}`}>
+                          <span className="status-text">{status.text}</span>
+                          {daysRemaining > 0 && (
+                            <span className="days-remaining">
+                              (Còn {daysRemaining} ngày)
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <button
+                          className="btn-view-detail"
+                          onClick={() => setSelectedItem(item)}
+                          title="Xem chi tiết"
+                        >
+                          👁️
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="pagination">
+            <button
+              disabled={pagination.page === 1}
+              onClick={() =>
+                setPagination({ ...pagination, page: pagination.page - 1 })
+              }
+              className="page-btn"
+            >
+              ‹ Trước
+            </button>
+            {[...Array(pagination.pages)].map((_, index) => {
+              const pageNum = index + 1;
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() =>
+                    setPagination({ ...pagination, page: pageNum })
+                  }
+                  className={`page-btn ${pagination.page === pageNum ? "active" : ""}`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+            <button
+              disabled={pagination.page === pagination.pages}
+              onClick={() =>
+                setPagination({ ...pagination, page: pagination.page + 1 })
+              }
+              className="page-btn"
+            >
+              Sau ›
+            </button>
+          </div>
+          <div className="pagination-info">
+            Hiển thị {(pagination.page - 1) * pageSize + 1} -{" "}
+            {Math.min(pagination.page * pageSize, pagination.total)} trong tổng
+            số {pagination.total} sản phẩm
+          </div>
+        </>
+      )}
+
+      {/* Detail Modal */}
+      {selectedItem && (
+        <>
+          <div
+            className="modal-overlay"
+            onClick={() => setSelectedItem(null)}
+          ></div>
+          <div className="warranty-detail-modal">
+            <div className="modal-header">
+              <h3>Chi tiết bảo hành</h3>
+              <button
+                className="close-btn"
+                onClick={() => setSelectedItem(null)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="modal-content">
+              <div className="detail-section">
+                <h4>Thông tin sản phẩm</h4>
+                <div className="detail-row">
+                  <label>Mã bảo hành:</label>
+                  <span>{selectedItem.warrantyCode}</span>
+                </div>
+                <div className="detail-row">
+                  <label>Tên sản phẩm:</label>
+                  <span>{selectedItem.productName}</span>
+                </div>
+                <div className="detail-row">
+                  <label>Màu sắc:</label>
+                  <span>{selectedItem.color || "N/A"}</span>
+                </div>
+                <div className="detail-row">
+                  <label>Cấu hình:</label>
+                  <span>
+                    {selectedItem.ram && selectedItem.storage
+                      ? `${selectedItem.ram} / ${selectedItem.storage}`
+                      : "N/A"}
+                  </span>
+                </div>
+                <div className="detail-row">
+                  <label>IMEI/Serial:</label>
+                  <span>{selectedItem.imei || "Chưa có"}</span>
+                </div>
+              </div>
+
+              <div className="detail-section">
+                <h4>Thông tin khách hàng</h4>
+                <div className="detail-row">
+                  <label>Tên khách hàng:</label>
+                  <span>{selectedItem.customer?.name || "N/A"}</span>
+                </div>
+                <div className="detail-row">
+                  <label>Số điện thoại:</label>
+                  <span>{selectedItem.customer?.phone || "N/A"}</span>
+                </div>
+                <div className="detail-row">
+                  <label>Email:</label>
+                  <span>{selectedItem.customer?.email || "N/A"}</span>
+                </div>
+              </div>
+
+              <div className="detail-section">
+                <h4>Thông tin bảo hành</h4>
+                <div className="detail-row">
+                  <label>Ngày bắt đầu:</label>
+                  <span>{formatDate(selectedItem.startDate)}</span>
+                </div>
+                <div className="detail-row">
+                  <label>Ngày hết hạn:</label>
+                  <span>{formatDate(selectedItem.endDate)}</span>
+                </div>
+                <div className="detail-row">
+                  <label>Thời gian bảo hành:</label>
+                  <span>{selectedItem.warrantyMonths || 12} tháng</span>
+                </div>
+                <div className="detail-row">
+                  <label>Số ngày còn lại:</label>
+                  <span>{selectedItem.daysRemaining || 0} ngày</span>
+                </div>
+                <div className="detail-row">
+                  <label>Trạng thái:</label>
+                  <span
+                    className={`status-badge ${
+                      getWarrantyStatus(selectedItem.daysRemaining || 0).class
+                    }`}
+                  >
+                    {getWarrantyStatus(selectedItem.daysRemaining || 0).text}
+                  </span>
+                </div>
+                {selectedItem.claimsCount > 0 && (
+                  <div className="detail-row">
+                    <label>Số lần bảo hành:</label>
+                    <span>{selectedItem.claimsCount} lần</span>
+                  </div>
+                )}
+                {selectedItem.notes && (
+                  <div className="detail-row">
+                    <label>Ghi chú:</label>
+                    <span>{selectedItem.notes}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+export default WarrantyManagement;

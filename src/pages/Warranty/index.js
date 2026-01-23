@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getWarrantyLookup } from "../../services/Api";
+import { getWarrantyLookup, getUserWarranties } from "../../services/Api";
 import "./warranty.css";
 
 const Warranty = () => {
@@ -14,15 +14,51 @@ const Warranty = () => {
   const fetchWarrantyData = async () => {
     try {
       setLoading(true);
-      const response = await getWarrantyLookup();
 
-      if (response.data.success) {
-        // Filter only products from completed orders (status = 3)
-        const completedOrderItems = response.data.data || [];
-        setWarrantyItems(completedOrderItems);
-      } else {
-        setError("Không thể tải dữ liệu bảo hành");
-      }
+      // Lấy cả hai loại bảo hành song song
+      const [orderWarrantiesRes, manualWarrantiesRes] = await Promise.all([
+        getWarrantyLookup().catch((err) => ({
+          data: { success: false, data: [] },
+        })),
+        getUserWarranties().catch((err) => ({
+          data: { success: false, data: [] },
+        })),
+      ]);
+
+      const orderWarranties = orderWarrantiesRes.data.success
+        ? orderWarrantiesRes.data.data
+        : [];
+      const manualWarranties = manualWarrantiesRes.data.success
+        ? manualWarrantiesRes.data.data
+        : [];
+
+      // Chuyển đổi format của manual warranties để khớp với format hiển thị
+      const formattedManualWarranties = manualWarranties.map((warranty) => ({
+        productName: warranty.product.name,
+        orderId: warranty.warrantyCode, // Dùng mã bảo hành thay cho orderId
+        purchaseDate: warranty.purchaseDate,
+        warrantyMonths: warranty.warrantyMonths,
+        expiredDate: warranty.expiryDate,
+        status: warranty.status === "active" ? "Còn hạn" : "Hết hạn",
+        isManual: true, // Đánh dấu đây là bảo hành thủ công
+        serviceType: warranty.serviceType,
+        imei: warranty.product.imei,
+        color: warranty.product.color,
+        ram: warranty.product.ram,
+        storage: warranty.product.storage,
+        warrantyCode: warranty.warrantyCode,
+        claims: warranty.claims || [],
+      }));
+
+      // Gộp cả hai loại bảo hành
+      const allWarranties = [...orderWarranties, ...formattedManualWarranties];
+
+      // Sắp xếp theo ngày mua (mới nhất trước)
+      allWarranties.sort(
+        (a, b) => new Date(b.purchaseDate) - new Date(a.purchaseDate),
+      );
+
+      setWarrantyItems(allWarranties);
     } catch (err) {
       setError("Có lỗi xảy ra khi tải dữ liệu bảo hành");
       console.error("Error fetching warranty data:", err);
@@ -97,12 +133,53 @@ const Warranty = () => {
             const daysRemaining = calculateDaysRemaining(item.expiredDate);
 
             return (
-              <div key={index} className="warranty-item">
+              <div
+                key={index}
+                className={`warranty-item ${item.isManual ? "manual-warranty" : "order-warranty"}`}
+              >
+                {/* Badge hiển thị loại bảo hành */}
+                <div className="warranty-badge">
+                  {item.isManual ? (
+                    <>
+                      <i className="fas fa-hand-holding-medical"></i>
+                      <span>Bảo hành thủ công</span>
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-shopping-cart"></i>
+                      <span>Từ đơn hàng</span>
+                    </>
+                  )}
+                </div>
+
                 <div className="warranty-product">
                   <div className="product-info">
                     <h3>{item.productName}</h3>
-                    <p className="order-id">Đơn hàng: #{item.orderId}</p>
-                    <p className="order-status">✅ Đã giao thành công</p>
+                    {item.isManual ? (
+                      <>
+                        <p className="warranty-code">
+                          Mã BH: {item.warrantyCode}
+                        </p>
+                        <p className="service-type">
+                          {item.serviceType === "new"
+                            ? "📦 Sản phẩm mới"
+                            : "🔧 Dịch vụ sửa chữa"}
+                        </p>
+                        {item.imei && <p className="imei">IMEI: {item.imei}</p>}
+                        {(item.color || item.ram || item.storage) && (
+                          <p className="product-specs">
+                            {item.color && `Màu: ${item.color}`}
+                            {item.ram && ` • RAM: ${item.ram}`}
+                            {item.storage && ` • Bộ nhớ: ${item.storage}`}
+                          </p>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <p className="order-id">Đơn hàng: #{item.orderId}</p>
+                        <p className="order-status">✅ Đã giao thành công</p>
+                      </>
+                    )}
                   </div>
                   <div
                     className={`warranty-status ${getStatusColor(item.status)}`}
@@ -153,8 +230,8 @@ const Warranty = () => {
                             daysRemaining > 30
                               ? "remaining-long"
                               : daysRemaining > 0
-                              ? "remaining-short"
-                              : "expired"
+                                ? "remaining-short"
+                                : "expired"
                           }
                         >
                           {daysRemaining > 0
@@ -165,6 +242,51 @@ const Warranty = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Hiển thị lịch sử claims nếu có */}
+                {item.isManual && item.claims && item.claims.length > 0 && (
+                  <div className="claims-section">
+                    <h4>
+                      <i className="fas fa-wrench"></i>
+                      Lịch sử bảo hành ({item.claims.length})
+                    </h4>
+                    <div className="claims-list">
+                      {item.claims.map((claim, claimIndex) => (
+                        <div
+                          key={claimIndex}
+                          className={`claim-item ${claim.status}`}
+                        >
+                          <div className="claim-header">
+                            <span className="claim-type">
+                              {claim.issueType}
+                            </span>
+                            <span className={`claim-status ${claim.status}`}>
+                              {claim.status === "pending" && "Chờ xử lý"}
+                              {claim.status === "in_progress" && "Đang xử lý"}
+                              {claim.status === "resolved" && "Đã giải quyết"}
+                              {claim.status === "rejected" && "Từ chối"}
+                            </span>
+                          </div>
+                          {claim.description && (
+                            <p className="claim-description">
+                              {claim.description}
+                            </p>
+                          )}
+                          {claim.serviceCenter && (
+                            <p className="claim-center">
+                              <i className="fas fa-map-marker-alt"></i>
+                              {claim.serviceCenter}
+                            </p>
+                          )}
+                          <p className="claim-date">
+                            <i className="fas fa-calendar"></i>
+                            {formatDate(claim.createdAt)}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {item.status === "Còn hạn" &&
                   daysRemaining <= 30 &&

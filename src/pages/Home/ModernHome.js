@@ -8,37 +8,45 @@ import HeroSection from "./components/HeroSection";
 import BlogSection from "./components/BlogSection";
 import FeaturedProducts from "./components/FeaturedProducts";
 import TrustSignals from "./components/TrustSignals";
-import Newsletter from "./components/Newsletter";
 import "./ModernHome.css";
 
 const ModernHome = () => {
   useEffect(() => {
-    const showAd = () => {
-      toast.info(
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <img
-            src="/images/product-1.png"
-            alt="Sản phẩm nổi bật"
-            style={{ width: 48, height: 48, marginRight: 12, borderRadius: 8 }}
-          />
-          <div>
-            <b>S25 Ultra hàng bán 30tr, PhoneStore bán 25tr</b>
-            <div style={{ fontSize: 13 }}>Bảo hành Chính hãng</div>
-          </div>
-        </div>,
-        {
-          position: "bottom-right",
-          autoClose: 15000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        }
-      );
-    };
-    showAd(); // Hiển thị lần đầu
-    const interval = setInterval(showAd, 15000); // Lặp lại mỗi 15s
-    return () => clearInterval(interval);
+    const timer = setTimeout(() => {
+      const showAd = () => {
+        toast.info(
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <img
+              src="/images/product-1.png"
+              alt="Sản phẩm nổi bật"
+              style={{
+                width: 48,
+                height: 48,
+                marginRight: 12,
+                borderRadius: 8,
+              }}
+            />
+            <div>
+              <b>S25 Ultra hàng bán 30tr, PhoneStore bán 25tr</b>
+              <div style={{ fontSize: 13 }}>Bảo hành Chính hãng</div>
+            </div>
+          </div>,
+          {
+            position: "bottom-right",
+            autoClose: 15000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          },
+        );
+      };
+      showAd(); // Hiển thị lần đầu
+      const interval = setInterval(showAd, 15000); // Lặp lại mỗi 15s
+      return () => clearInterval(interval);
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, []);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [latestProducts, setLatestProducts] = useState([]);
@@ -61,10 +69,10 @@ const ModernHome = () => {
 
         // Find category IDs
         const tabletCategory = categoriesData.find(
-          (cat) => cat.name === "Máy tính bảng"
+          (cat) => cat.name === "Máy tính bảng",
         );
         const accessoryCategory = categoriesData.find(
-          (cat) => cat.name === "Phụ kiện"
+          (cat) => cat.name === "Phụ kiện",
         );
 
         // Fetch featured products
@@ -175,8 +183,8 @@ const ModernHome = () => {
         <section className="home-section home-accessory-section section accessory-section">
           <div className="home-inner-container">
             <div className="home-section-header section-header">
-              <h2>Phụ kiện</h2>
-              <p>Phụ kiện chính hãng cho thiết bị của bạn</p>
+              <h2>Tai nghe</h2>
+              <p>Tai nghe chính hãng</p>
               <Link
                 to={`/products?category=${getCategoryId("Phụ kiện")}`}
                 className="home-view-all-btn view-all-btn"
@@ -206,8 +214,8 @@ const ModernHome = () => {
       {/* Trust Signals */}
       <TrustSignals />
 
-      {/* Newsletter */}
-      <Newsletter />
+      {/* Toast Container */}
+      <ToastContainer />
     </div>
   );
 };

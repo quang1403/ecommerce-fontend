@@ -8,6 +8,8 @@ import {
   getCustomers,
   getCommentsProduct,
   getProducts,
+  getLowStockProducts, // Thêm API stock
+  getOutOfStockProducts, // Thêm API stock
 } from "../../../services/Api";
 import "../styles/Dashboard.css";
 import { getImageProduct } from "../../../shared/utils";
@@ -27,6 +29,10 @@ const Dashboard = ({ onNavigateToOrders }) => {
   const [activities, setActivities] = useState([]);
   const [categorySales, setCategorySales] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // State cho inventory warnings
+  const [lowStockProducts, setLowStockProducts] = useState([]);
+  const [outOfStockProducts, setOutOfStockProducts] = useState([]);
 
   // Format thời gian relative (từ Updates.jsx)
   const formatTimeAgo = (date) => {
@@ -212,7 +218,7 @@ const Dashboard = ({ onNavigateToOrders }) => {
         }),
         // Thêm API lấy customers
         getCustomers().catch((err) => {
-          console.error( err);
+          console.error(err);
           return { data: null };
         }),
         // Lấy tất cả products để fetch comments
@@ -236,7 +242,7 @@ const Dashboard = ({ onNavigateToOrders }) => {
 
       if (ordersResponse?.data) {
         setRecentOrders(
-          ordersResponse.data?.recentOrders || ordersResponse.data || []
+          ordersResponse.data?.recentOrders || ordersResponse.data || [],
         );
       }
 
@@ -276,7 +282,7 @@ const Dashboard = ({ onNavigateToOrders }) => {
         const sortedOrders = [...ordersForRevenue].sort(
           (a, b) =>
             new Date(b.updatedAt || b.createdAt) -
-            new Date(a.updatedAt || a.createdAt)
+            new Date(a.updatedAt || a.createdAt),
         );
 
         // Lấy bình luận mới nhất từ products
@@ -291,7 +297,7 @@ const Dashboard = ({ onNavigateToOrders }) => {
             const comments = Array.isArray(res.data?.data) ? res.data.data : [];
             if (comments.length > 0) {
               const newest = comments.reduce((a, b) =>
-                new Date(a.createdAt) > new Date(b.createdAt) ? a : b
+                new Date(a.createdAt) > new Date(b.createdAt) ? a : b,
               );
               if (
                 !latestComment ||
@@ -309,7 +315,7 @@ const Dashboard = ({ onNavigateToOrders }) => {
         const activitiesData = generateActivities(
           sortedOrders,
           customersData,
-          latestComment
+          latestComment,
         );
         setActivities(activitiesData);
 
@@ -321,7 +327,8 @@ const Dashboard = ({ onNavigateToOrders }) => {
           if (order.items && Array.isArray(order.items)) {
             order.items.forEach((item) => {
               const product = products.find(
-                (p) => p._id === item.productId || p._id === item.productId?._id
+                (p) =>
+                  p._id === item.productId || p._id === item.productId?._id,
               );
               if (product && product.category) {
                 const categoryName =
@@ -344,6 +351,24 @@ const Dashboard = ({ onNavigateToOrders }) => {
           .sort((a, b) => b.revenue - a.revenue);
 
         setCategorySales(categoryArray);
+      }
+
+      // Lấy dữ liệu inventory warnings
+      try {
+        const [lowStockRes, outOfStockRes] = await Promise.all([
+          getLowStockProducts(10).catch(() => ({ data: { data: [] } })),
+          getOutOfStockProducts().catch(() => ({ data: { data: [] } })),
+        ]);
+
+        if (lowStockRes?.data?.success) {
+          setLowStockProducts(lowStockRes.data.data || []);
+        }
+
+        if (outOfStockRes?.data?.success) {
+          setOutOfStockProducts(outOfStockRes.data.data || []);
+        }
+      } catch (error) {
+        console.error("❌ Lỗi tải dữ liệu inventory:", error);
       }
 
       // Nếu không có dữ liệu nào từ API, dùng fallback
@@ -487,7 +512,7 @@ const Dashboard = ({ onNavigateToOrders }) => {
     // Tìm trong danh sách customers đã load từ API
     if (customers.length > 0) {
       const customerData = customers.find(
-        (customer) => customer._id === customerIdValue
+        (customer) => customer._id === customerIdValue,
       );
       if (customerData) {
         // Chỉ dùng fullName, không fallback sang name hay email
@@ -592,7 +617,7 @@ const Dashboard = ({ onNavigateToOrders }) => {
               <div className="chart-container">
                 {revenueData.map((item, index) => {
                   const maxRevenue = Math.max(
-                    ...revenueData.map((d) => d.revenue)
+                    ...revenueData.map((d) => d.revenue),
                   );
                   const barHeight =
                     maxRevenue === 0
@@ -600,7 +625,7 @@ const Dashboard = ({ onNavigateToOrders }) => {
                       : Math.max(5, (item.revenue / maxRevenue) * 200);
 
                   const tooltipText = `${item.month}: ${formatCurrency(
-                    item.revenue
+                    item.revenue,
                   )} (${item.orderCount} đơn hàng)`;
 
                   return (
@@ -652,7 +677,7 @@ const Dashboard = ({ onNavigateToOrders }) => {
                     {(() => {
                       const totalRevenue = categorySales.reduce(
                         (sum, cat) => sum + cat.revenue,
-                        0
+                        0,
                       );
                       const colors = [
                         "#667eea",
@@ -693,7 +718,7 @@ const Dashboard = ({ onNavigateToOrders }) => {
                   {(() => {
                     const totalRevenue = categorySales.reduce(
                       (sum, cat) => sum + cat.revenue,
-                      0
+                      0,
                     );
                     const colors = [
                       "#667eea",
@@ -767,7 +792,7 @@ const Dashboard = ({ onNavigateToOrders }) => {
                       <td>
                         <span
                           className={`status-badge-nexus ${getStatusClass(
-                            order.status
+                            order.status,
                           )}`}
                         >
                           {getStatusText(order.status)}
@@ -817,6 +842,93 @@ const Dashboard = ({ onNavigateToOrders }) => {
           </div>
         </div>
       </div>
+
+      {/* Inventory Warnings Section */}
+      {(lowStockProducts.length > 0 || outOfStockProducts.length > 0) && (
+        <div className="dashboard-grid-2col">
+          {/* Low Stock Products */}
+          {lowStockProducts.length > 0 && (
+            <div className="dashboard-section inventory-warning">
+              <div className="section-header">
+                <h2>⚠️ Sản phẩm sắp hết hàng</h2>
+                <span className="warning-badge">
+                  {lowStockProducts.length} sản phẩm
+                </span>
+              </div>
+
+              <div className="inventory-list">
+                {lowStockProducts.slice(0, 5).map((product) => (
+                  <div className="inventory-item" key={product._id}>
+                    <img
+                      src={getImageProduct(product.images?.[0])}
+                      alt={product.name}
+                      className="inventory-image"
+                    />
+                    <div className="inventory-info">
+                      <p className="inventory-name">{product.name}</p>
+                      <span className="inventory-stock low-stock">
+                        Stock: {product.stock}
+                      </span>
+                    </div>
+                    {product.lowStockColorVariants &&
+                      product.lowStockColorVariants.length > 0 && (
+                        <div className="inventory-variants">
+                          {product.lowStockColorVariants.map((variant, idx) => (
+                            <span key={idx} className="variant-tag warning">
+                              {variant.color}: {variant.stock}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Out of Stock Products */}
+          {outOfStockProducts.length > 0 && (
+            <div className="dashboard-section inventory-warning danger">
+              <div className="section-header">
+                <h2>🔴 Sản phẩm hết hàng</h2>
+                <span className="danger-badge">
+                  {outOfStockProducts.length} sản phẩm
+                </span>
+              </div>
+
+              <div className="inventory-list">
+                {outOfStockProducts.slice(0, 5).map((product) => (
+                  <div className="inventory-item" key={product._id}>
+                    <img
+                      src={getImageProduct(product.images?.[0])}
+                      alt={product.name}
+                      className="inventory-image"
+                    />
+                    <div className="inventory-info">
+                      <p className="inventory-name">{product.name}</p>
+                      <span className="inventory-stock out-of-stock">
+                        Stock: {product.stock}
+                      </span>
+                    </div>
+                    {product.outOfStockColorVariants &&
+                      product.outOfStockColorVariants.length > 0 && (
+                        <div className="inventory-variants">
+                          {product.outOfStockColorVariants.map(
+                            (variant, idx) => (
+                              <span key={idx} className="variant-tag danger">
+                                {variant.color}: {variant.stock}
+                              </span>
+                            ),
+                          )}
+                        </div>
+                      )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

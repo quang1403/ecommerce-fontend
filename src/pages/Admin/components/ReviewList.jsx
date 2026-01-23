@@ -37,8 +37,8 @@ const ReviewList = () => {
       const productList = Array.isArray(productsRes.data?.data)
         ? productsRes.data.data
         : Array.isArray(productsRes.data)
-        ? productsRes.data
-        : [];
+          ? productsRes.data
+          : [];
       setProducts(productList);
 
       // Get reviews for all products
@@ -108,18 +108,19 @@ const ReviewList = () => {
     if (filters.product && review.product?._id !== filters.product)
       return false;
     if (filters.status && review.status !== filters.status) return false;
-    if (
-      filters.rating &&
-      review.rating &&
-      review.rating !== Number(filters.rating)
-    )
-      return false;
+    if (filters.rating) {
+      const reviewRating = Number(review.rating);
+      const filterRating = Number(filters.rating);
+      if (isNaN(reviewRating) || reviewRating !== filterRating) {
+        return false;
+      }
+    }
     return true;
   });
 
   const pagedReviews = filteredReviews.slice(
     (page - 1) * pageSize,
-    page * pageSize
+    page * pageSize,
   );
   const totalPages = Math.ceil(filteredReviews.length / pageSize);
 
@@ -142,8 +143,8 @@ const ReviewList = () => {
       await updateCommentStatus(reviewId, newStatus);
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
-          review._id === reviewId ? { ...review, status: newStatus } : review
-        )
+          review._id === reviewId ? { ...review, status: newStatus } : review,
+        ),
       );
       alert("Đã cập nhật trạng thái thành công!");
     } catch (err) {
@@ -255,18 +256,6 @@ const ReviewList = () => {
           <span className="stat-item">
             Tổng: <strong>{reviews.length}</strong>
           </span>
-          <span className="stat-item">
-            Chờ duyệt:{" "}
-            <strong>
-              {reviews.filter((r) => r.status === "pending").length}
-            </strong>
-          </span>
-          <span className="stat-item">
-            Đã duyệt:{" "}
-            <strong>
-              {reviews.filter((r) => r.status === "approved").length}
-            </strong>
-          </span>
         </div>
       </div>
 
@@ -296,18 +285,7 @@ const ReviewList = () => {
               </option>
             ))}
           </select>
-          <select
-            value={filters.status}
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, status: e.target.value }))
-            }
-            className="filter-select"
-          >
-            <option value="">-- Trạng thái --</option>
-            <option value="pending">Chờ duyệt</option>
-            <option value="approved">Đã duyệt</option>
-            <option value="rejected">Từ chối</option>
-          </select>
+
           <select
             value={filters.rating}
             onChange={(e) =>
@@ -315,12 +293,12 @@ const ReviewList = () => {
             }
             className="filter-select"
           >
-            <option value="">-- Số sao --</option>
-            <option value="5">5 sao</option>
-            <option value="4">4 sao</option>
-            <option value="3">3 sao</option>
-            <option value="2">2 sao</option>
-            <option value="1">1 sao</option>
+            <option value="">-- Tất cả số sao --</option>
+            <option value="5">★★★★★ (5 sao)</option>
+            <option value="4">★★★★☆ (4 sao)</option>
+            <option value="3">★★★☆☆ (3 sao)</option>
+            <option value="2">★★☆☆☆ (2 sao)</option>
+            <option value="1">★☆☆☆☆ (1 sao)</option>
           </select>
           <button className="clear-filter-btn" onClick={clearFilters}>
             Xóa bộ lọc

@@ -41,8 +41,8 @@ const ProductItem = ({ item }) => {
             _id: cartItem._id,
             productId: cartItem.productId,
             quantity: Number(cartItem.quantity),
-          }))
-        )
+          })),
+        ),
       );
 
       alert("Đã thêm sản phẩm vào giỏ hàng!");

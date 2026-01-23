@@ -253,9 +253,8 @@ const UserEdit = () => {
           >
             Thông tin trả góp
           </li>
-          <li style={{ color: "#aaa", cursor: "not-allowed" }}>Đơn đặt hàng</li>
           <li
-            style={{ color: "#4a90e2", cursor: "pointer" }}
+            style={{ cursor: "pointer" }}
             onClick={() => navigate("/warranty")}
           >
             Tra cứu bảo hành

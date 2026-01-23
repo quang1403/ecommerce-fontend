@@ -24,6 +24,8 @@ import Support from "../pages/Support";
 import Privacy from "../pages/Legal/Privacy";
 import Terms from "../pages/Legal/Terms";
 import Cookies from "../pages/Legal/Cookies";
+import About from "../pages/About";
+
 import LegalWarranty from "../pages/Legal/Warranty";
 import WarrantyLookup from "../pages/Warranty";
 import ReturnPolicy from "../pages/Legal/ReturnPolicy";
@@ -33,6 +35,7 @@ import ForgotPassword from "../pages/Auth/ForgotPassword";
 import ResetPassword from "../pages/Auth/ResetPassword";
 import AuthGoogleSuccess from "../pages/Auth/AuthGoogleSuccess";
 import InstallmentPage from "../pages/Installment";
+
 export default [
   {
     path: "/",
@@ -103,14 +106,6 @@ export default [
     element: RequireAdmin(AdminLayout),
   },
   {
-    path: "/admin/customers",
-    element: RequireAdmin(CustomerList),
-  },
-  {
-    path: "/admin/sliders",
-    element: RequireAdmin(SliderManagement),
-  },
-  {
     path: "/deals",
     element: Deals,
   },
@@ -125,6 +120,10 @@ export default [
   {
     path: "/support",
     element: Support,
+  },
+  {
+    path: "/about",
+    element: About,
   },
   {
     path: "/privacy",

@@ -1,0 +1,64 @@
+/**
+ * Claim Form Styles
+ */
+
+.claim-form-page {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Warranty Info */
+.warranty-info {
+  color: #666;
+  margin: 5px 0 0 0;
+  font-size: 14px;
+}
+
+.warranty-info strong {
+  color: #007bff;
+  font-family: monospace;
+}
+
+/* Form */
+.claim-form {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Input with unit */
+.input-with-unit {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-unit input {
+  flex: 1;
+  padding-right: 50px;
+}
+
+.input-with-unit .unit {
+  position: absolute;
+  right: 16px;
+  color: #666;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+/* Helper text */
+.helper-text {
+  display: block;
+  margin-top: 6px;
+  color: #999;
+  font-size: 12px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .claim-form-page {
+    padding: 16px;
+  }
+}

@@ -101,13 +101,57 @@
   background: white;
   border-radius: 12px;
   padding: 25px;
+  padding-top: 50px; /* Thêm padding-top để tránh badge đè lên nội dung */
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+  position: relative;
+}
+
+/* Hiệu ứng khác biệt cho loại bảo hành */
+.warranty-item.manual-warranty {
+  border-left: 4px solid #9b59b6;
+}
+
+.warranty-item.order-warranty {
+  border-left: 4px solid #3498db;
 }
 
 .warranty-item:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Badge hiển thị loại bảo hành */
+.warranty-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 1; /* Đảm bảo badge ở trên */
+}
+
+.manual-warranty .warranty-badge {
+  background: linear-gradient(135deg, #9b59b6, #8e44ad);
+  color: white;
+}
+
+.order-warranty .warranty-badge {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+}
+
+.warranty-badge i {
+  font-size: 0.85rem;
 }
 
 .warranty-product {
@@ -130,6 +174,32 @@
   color: #7f8c8d;
   font-size: 0.9rem;
   margin: 0 0 4px 0;
+}
+
+.warranty-code {
+  color: #9b59b6;
+  font-size: 0.9rem;
+  margin: 0 0 4px 0;
+  font-weight: 600;
+}
+
+.service-type {
+  color: #3498db;
+  font-size: 0.85rem;
+  margin: 0 0 4px 0;
+  font-weight: 500;
+}
+
+.imei {
+  color: #7f8c8d;
+  font-size: 0.85rem;
+  margin: 0 0 4px 0;
+}
+
+.product-specs {
+  color: #7f8c8d;
+  font-size: 0.85rem;
+  margin: 0;
 }
 
 .order-status {
@@ -261,6 +331,133 @@
   left: 0;
 }
 
+/* Claims Section Styles */
+.claims-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid #ecf0f1;
+}
+
+.claims-section h4 {
+  color: #2c3e50;
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.claims-section h4 i {
+  color: #e67e22;
+}
+
+.claims-list {
+  display: grid;
+  gap: 12px;
+}
+
+.claim-item {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 3px solid #95a5a6;
+}
+
+.claim-item.pending {
+  border-left-color: #f39c12;
+  background: #fef9e7;
+}
+
+.claim-item.in_progress {
+  border-left-color: #3498db;
+  background: #ebf5fb;
+}
+
+.claim-item.resolved {
+  border-left-color: #27ae60;
+  background: #eafaf1;
+}
+
+.claim-item.rejected {
+  border-left-color: #e74c3c;
+  background: #fadbd8;
+}
+
+.claim-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.claim-type {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+.claim-status {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.claim-status.pending {
+  background: #f39c12;
+  color: white;
+}
+
+.claim-status.in_progress {
+  background: #3498db;
+  color: white;
+}
+
+.claim-status.resolved {
+  background: #27ae60;
+  color: white;
+}
+
+.claim-status.rejected {
+  background: #e74c3c;
+  color: white;
+}
+
+.claim-description {
+  color: #7f8c8d;
+  font-size: 0.85rem;
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+.claim-center {
+  color: #2c3e50;
+  font-size: 0.85rem;
+  margin: 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.claim-center i {
+  color: #e74c3c;
+  font-size: 0.8rem;
+}
+
+.claim-date {
+  color: #95a5a6;
+  font-size: 0.8rem;
+  margin: 6px 0 0 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.claim-date i {
+  font-size: 0.75rem;
+}
+
 @media (max-width: 768px) {
   .warranty-container {
     padding: 15px;
@@ -285,5 +482,17 @@
 
   .warranty-item {
     padding: 20px;
+  }
+
+  .warranty-badge {
+    position: static;
+    margin-bottom: 15px;
+    width: fit-content;
+  }
+
+  .claim-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 }

@@ -9,6 +9,8 @@ import Statistics from "./Statistics";
 import AdminNews from "./AdminNews";
 import InstallmentOrders from "./InstallmentOrders";
 import SliderManagement from "./SliderManagement";
+import InventoryManagement from "./InventoryManagement";
+import WarrantyManagement from "./WarrantyManagement";
 import Toast from "./Toast";
 import { getAllOrdersAdmin, getCommentsProduct } from "../../../services/Api";
 import "../styles/AdminLayout.css";
@@ -18,7 +20,7 @@ const AdminLayout = () => {
   const [tab, setTab] = useState(0);
   const [toast, setToast] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
-    window.innerWidth <= 768
+    window.innerWidth <= 768,
   );
   const [expandedMenu, setExpandedMenu] = useState(null);
   const [notificationCount, setNotificationCount] = useState(0);
@@ -36,7 +38,9 @@ const AdminLayout = () => {
       ],
     },
     { id: 2, label: "Người dùng", icon: "👥", actualTab: 2 },
-    { id: 3, label: "Kho hàng", icon: "📦", actualTab: 3 },
+    { id: 3, label: "Sản phẩm", icon: "📦", actualTab: 3 },
+    { id: 8, label: "Tồn kho", icon: "📦", actualTab: 8 },
+    { id: 10, label: "Tra cứu bảo hành", icon: "🛡️", actualTab: 10 },
     { id: 4, label: "Đánh giá", icon: "⭐", actualTab: 4 },
     { id: 5, label: "Thống kê", icon: "📊", actualTab: 5 },
     { id: 6, label: "Tin tức", icon: "📰", actualTab: 6 },
@@ -46,7 +50,6 @@ const AdminLayout = () => {
       icon: "🎨",
       actualTab: 9,
     },
-      
   ];
 
   const showToast = (message, type = "success") => {
@@ -139,7 +142,7 @@ const AdminLayout = () => {
     // Scroll đến phần hoạt động gần đây sau khi render
     setTimeout(() => {
       const activitySection = document.querySelector(
-        ".recent-activity, .activity-feed, .nexus-updates"
+        ".recent-activity, .activity-feed, .nexus-updates",
       );
       if (activitySection) {
         activitySection.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -178,7 +181,10 @@ const AdminLayout = () => {
   else if (tab === 5) mainContent = <Statistics />;
   else if (tab === 6) mainContent = <AdminNews />;
   else if (tab === 7) mainContent = <InstallmentOrders />;
+  else if (tab === 8)
+    mainContent = <InventoryManagement showToast={showToast} />;
   else if (tab === 9) mainContent = <SliderManagement />;
+  else if (tab === 10) mainContent = <WarrantyManagement />;
   else
     mainContent = (
       <div style={{ padding: "2rem" }}>Chức năng đang phát triển...</div>

@@ -109,7 +109,7 @@ const CustomerList = () => {
 
   return (
     <div className="CustomerList">
-      <h2>Quản lý khách hàng</h2>
+      <h2 style={{ fontSize: "18px" }}>Quản lý khách hàng</h2>
       <table>
         <thead>
           <tr>

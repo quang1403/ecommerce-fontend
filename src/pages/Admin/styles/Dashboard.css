@@ -3,7 +3,12 @@
   padding: 24px;
   background: #f7f9fc;
   min-height: 100vh;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
     sans-serif;
 }
 
@@ -751,4 +756,126 @@
   .legend-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ===== INVENTORY WARNINGS STYLES ===== */
+.inventory-warning {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.inventory-warning.danger {
+  border-left: 4px solid #ef4444;
+}
+
+.inventory-warning:not(.danger) {
+  border-left: 4px solid #f59e0b;
+}
+
+.warning-badge {
+  padding: 6px 12px;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.danger-badge {
+  padding: 6px 12px;
+  background: #fee2e2;
+  color: #991b1b;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.inventory-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.inventory-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.inventory-item:hover {
+  background: #e9ecef;
+  transform: translateX(4px);
+}
+
+.inventory-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.inventory-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inventory-name {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1a202c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inventory-stock {
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.inventory-stock.low-stock {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.inventory-stock.out-of-stock {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.inventory-variants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.variant-tag {
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.variant-tag.warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.variant-tag.danger {
+  background: #fee2e2;
+  color: #991b1b;
 }

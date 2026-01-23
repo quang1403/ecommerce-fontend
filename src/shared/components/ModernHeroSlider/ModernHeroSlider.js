@@ -179,6 +179,18 @@ const ModernHeroSlider = ({
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Không xử lý phím khi đang nhập text trong input/textarea
+      const activeElement = document.activeElement;
+      const isInputActive =
+        activeElement &&
+        (activeElement.tagName === "INPUT" ||
+          activeElement.tagName === "TEXTAREA" ||
+          activeElement.isContentEditable);
+
+      if (isInputActive) {
+        return; // Bỏ qua nếu đang nhập text
+      }
+
       if (e.key === "ArrowLeft") {
         goToPrev();
       } else if (e.key === "ArrowRight") {

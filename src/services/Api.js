@@ -52,7 +52,7 @@ export const updateOrderStatusAdmin = (orderId, status) => {
     { orderId: orderId, status: numericStatus }, // Gửi cả orderId và status
     {
       headers: { Authorization: `Bearer ${token}` },
-    }
+    },
   );
 };
 
@@ -75,7 +75,7 @@ export const updateInstallmentStatus = (orderId, financeStatus) => {
     { financeStatus },
     {
       headers: { Authorization: `Bearer ${token}` },
-    }
+    },
   );
 };
 
@@ -162,7 +162,7 @@ export const getProductsByBrand = (brandId, categoryId) => {
 };
 
 // ---------------- INVENTORY MANAGEMENT ----------------
-// Kiểm tra tồn kho của một sản phẩm (Public)
+// 📦 Kiểm tra tồn kho của một sản phẩm (Public)
 export const checkProductStock = (productId) => {
   return Http.get(`/inventory/stock/${productId}`);
 };
@@ -190,15 +190,23 @@ export const checkMultipleProductsStock = async (productIds) => {
   }
 };
 
-// Cập nhật tồn kho đơn lẻ (Admin only)
-export const updateProductStock = (productId, stock, action = "subtract") => {
+// 🔍 Lấy chi tiết đầy đủ Inventory với variants (Admin)
+export const getInventoryDetailed = (productId) => {
+  const token = localStorage.getItem("accessToken");
+  return Http.get(`/inventory/detailed/${productId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
+// 🔄 Cập nhật Stock (Admin) - Hỗ trợ total, color, ramStorage variants
+export const updateProductStock = (productId, stockData) => {
   const token = localStorage.getItem("accessToken");
   return Http.put(
     `/inventory/stock/${productId}`,
-    { stock, action }, // action: 'set', 'add', 'subtract'
+    stockData, // { action, stock, variantType?, color?, ram?, storage? }
     {
       headers: { Authorization: `Bearer ${token}` },
-    }
+    },
   );
 };
 
@@ -210,11 +218,11 @@ export const updateMultipleProductsStock = (updates) => {
     { updates }, // [{ productId, stock, action }]
     {
       headers: { Authorization: `Bearer ${token}` },
-    }
+    },
   );
 };
 
-// Lấy sản phẩm sắp hết hàng (Admin only)
+// ⚠️ Lấy danh sách sản phẩm sắp hết hàng (Admin)
 export const getLowStockProducts = (threshold = 10) => {
   const token = localStorage.getItem("accessToken");
   return Http.get("/inventory/low-stock", {
@@ -230,7 +238,7 @@ export const getNews = (params) => Http.get("/news", { params });
 // Lấy chi tiết bài viết
 export const getNewsById = (id) => Http.get(`/news/${id}`);
 
-// Lấy sản phẩm hết hàng (Admin only)
+// 🔴 Lấy danh sách sản phẩm hết hàng (Admin)
 export const getOutOfStockProducts = () => {
   const token = localStorage.getItem("accessToken");
   return Http.get("/inventory/out-of-stock", {
@@ -238,7 +246,7 @@ export const getOutOfStockProducts = () => {
   });
 };
 
-// Báo cáo tồn kho (Admin only)
+// 📊 Báo cáo tồn kho (Admin only)
 export const getInventoryReport = () => {
   const token = localStorage.getItem("accessToken");
   return Http.get("/inventory/report", {
@@ -293,7 +301,7 @@ export const updateCommentStatus = (commentId, status) => {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 };
 
@@ -361,7 +369,7 @@ export const updateOrderStatus = (orderId, status) => {
     { orderId, status },
     {
       headers: { Authorization: `Bearer ${token}` },
-    }
+    },
   );
 };
 
@@ -494,21 +502,22 @@ export const getRevenueAnalyticsAPI = (params = {}) => {
 // Tính analytics thật từ existing data
 export const calculateRealAnalytics = async (dateRange) => {
   try {
-    const token = localStorage.getItem("accessToken");
-
     // Tự động chọn groupBy dựa trên khoảng thời gian
     const startDate = new Date(dateRange.startDate);
     const endDate = new Date(dateRange.endDate);
     const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
 
     let groupBy = "day";
-    if (daysDiff <= 7) groupBy = "day"; // ≤ 7 ngày: group by day
-    else if (daysDiff <= 90) groupBy = "week"; // ≤ 3 tháng: group by week
-    else if (daysDiff <= 730) groupBy = "month"; // ≤ 2 năm: group by month
+    if (daysDiff <= 7)
+      groupBy = "day"; // ≤ 7 ngày: group by day
+    else if (daysDiff <= 90)
+      groupBy = "week"; // ≤ 3 tháng: group by week
+    else if (daysDiff <= 730)
+      groupBy = "month"; // ≤ 2 năm: group by month
     else groupBy = "year"; // > 2 năm: group by year
 
     console.log(
-      `📊 Auto-selected groupBy: ${groupBy} for ${daysDiff} days range`
+      `📊 Auto-selected groupBy: ${groupBy} for ${daysDiff} days range`,
     );
 
     // Gọi các API analytics thật + fallback APIs
@@ -619,7 +628,7 @@ export const calculateRealAnalytics = async (dateRange) => {
         });
 
         console.log(
-          `📅 Filtered ${filteredOrders.length}/${orders.length} orders for date range`
+          `📅 Filtered ${filteredOrders.length}/${orders.length} orders for date range`,
         );
       } catch (dateError) {
         console.warn("❌ Date filtering failed:", dateError.message);
@@ -635,32 +644,32 @@ export const calculateRealAnalytics = async (dateRange) => {
       ? calculateRevenueFromAPI(
           revenueAnalyticsResponse.data,
           dateRange,
-          groupBy
+          groupBy,
         )
       : Array.isArray(filteredOrders)
-      ? calculateRevenueFromOrders(filteredOrders, dateRange)
-      : {
-          totalRevenue: 0,
-          totalOrders: 0,
-          avgOrderValue: 0,
-          growth: 0,
-          dailyRevenue: [],
-        };
+        ? calculateRevenueFromOrders(filteredOrders, dateRange)
+        : {
+            totalRevenue: 0,
+            totalOrders: 0,
+            avgOrderValue: 0,
+            growth: 0,
+            dailyRevenue: [],
+          };
 
     // Calculate customer analytics - Ưu tiên API mới nếu có
     const customerAnalytics = customerBehaviorResponse?.data
       ? calculateCustomerAnalyticsFromAPI(
           customerBehaviorResponse.data,
-          dashboardData
+          dashboardData,
         )
       : Array.isArray(filteredOrders)
-      ? calculateCustomerAnalytics(filteredOrders, dashboardData)
-      : {
-          totalCustomers: 0,
-          newCustomers: 0,
-          returningCustomers: 0,
-          customerGrowth: 0,
-        };
+        ? calculateCustomerAnalytics(filteredOrders, dashboardData)
+        : {
+            totalCustomers: 0,
+            newCustomers: 0,
+            returningCustomers: 0,
+            customerGrowth: 0,
+          };
 
     // Calculate product analytics from API data
     const productAnalytics =
@@ -738,11 +747,11 @@ const calculateRevenueFromAPI = (apiData, dateRange, groupBy = "day") => {
   // Tính tổng từ API data
   const totalRevenue = revenueAnalytics.reduce(
     (sum, item) => sum + (item.totalRevenue || 0),
-    0
+    0,
   );
   const totalOrders = revenueAnalytics.reduce(
     (sum, item) => sum + (item.orderCount || 0),
-    0
+    0,
   );
   const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
@@ -822,7 +831,7 @@ const calculateRevenueFromOrders = (orders, dateRange) => {
   // Tính tổng revenue (field là 'total' từ API)
   const totalRevenue = orders.reduce(
     (sum, order) => sum + (order.total || 0),
-    0
+    0,
   );
 
   console.log("💰 Total revenue calculated:", totalRevenue);
@@ -839,7 +848,7 @@ const calculateRevenueFromOrders = (orders, dateRange) => {
   });
 
   const dailyRevenueArray = Object.values(dailyRevenue).sort((a, b) =>
-    a.date.localeCompare(b.date)
+    a.date.localeCompare(b.date),
   );
 
   console.log("📈 Daily revenue array:", dailyRevenueArray);
@@ -874,7 +883,7 @@ const calculateCustomerAnalyticsFromAPI = (behaviorData, dashboardData) => {
     topCustomers?.length > 0
       ? topCustomers.reduce(
           (sum, customer) => sum + customer.avgOrderValue,
-          0
+          0,
         ) / topCustomers.length
       : 0;
 
@@ -885,7 +894,7 @@ const calculateCustomerAnalyticsFromAPI = (behaviorData, dashboardData) => {
   const mediumValueCustomers =
     topCustomers?.filter(
       (customer) =>
-        customer.totalSpent >= 30000000 && customer.totalSpent <= 100000000
+        customer.totalSpent >= 30000000 && customer.totalSpent <= 100000000,
     ) || [];
   const regularCustomers =
     topCustomers?.filter((customer) => customer.totalSpent < 30000000) || [];
@@ -902,7 +911,7 @@ const calculateCustomerAnalyticsFromAPI = (behaviorData, dashboardData) => {
           ? Math.round(
               (method.count /
                 paymentMethodStats.reduce((sum, m) => sum + m.count, 0)) *
-                100
+                100,
             )
           : 0,
     })) || [];
@@ -959,7 +968,7 @@ const calculateCustomerAnalytics = (orders, dashboardData) => {
   console.log(
     "👥 Calculating customer analytics from",
     orders.length,
-    "orders"
+    "orders",
   );
 
   const uniqueCustomers = new Set();
@@ -981,10 +990,10 @@ const calculateCustomerAnalytics = (orders, dashboardData) => {
 
   // Classify customers
   const newCustomers = Object.values(customerOrders).filter(
-    (orders) => orders.length === 1
+    (orders) => orders.length === 1,
   ).length;
   const returningCustomers = Object.values(customerOrders).filter(
-    (orders) => orders.length > 1
+    (orders) => orders.length > 1,
   ).length;
 
   return {
@@ -1000,26 +1009,26 @@ const calculateCustomerAnalytics = (orders, dashboardData) => {
         segment: "Khách hàng mới (1 đơn)",
         count: newCustomers,
         percentage: Math.round(
-          (newCustomers / (uniqueCustomers.size || 1)) * 100
+          (newCustomers / (uniqueCustomers.size || 1)) * 100,
         ),
       },
       {
         segment: "Khách quay lại (2+ đơn)",
         count: returningCustomers,
         percentage: Math.round(
-          (returningCustomers / (uniqueCustomers.size || 1)) * 100
+          (returningCustomers / (uniqueCustomers.size || 1)) * 100,
         ),
       },
       {
         segment: "VIP (5+ đơn)",
         count: Object.values(customerOrders).filter(
-          (orders) => orders.length >= 5
+          (orders) => orders.length >= 5,
         ).length,
         percentage: Math.round(
           (Object.values(customerOrders).filter((orders) => orders.length >= 5)
             .length /
             (uniqueCustomers.size || 1)) *
-            100
+            100,
         ),
       },
     ],
@@ -1095,7 +1104,7 @@ const calculateProductAnalytics = (products, orders) => {
     categoryPerformance,
     totalStock: products.reduce(
       (sum, product) => sum + (product.stock || 0),
-      0
+      0,
     ),
     averagePrice:
       products.length > 0
@@ -1248,6 +1257,112 @@ export const getWarrantyLookup = () => {
   });
 };
 
+// Tra cứu bảo hành cho admin (tất cả đơn hàng)
+export const getWarrantyLookupAdmin = () => {
+  const token = localStorage.getItem("accessToken");
+  return Http.get("/orders/warranty/admin/lookup", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// API mới theo documentation
+// POST /api/warranty - Tạo mới bảo hành thủ công (Admin)
+export const createWarranty = (warrantyData) => {
+  const token = localStorage.getItem("accessToken");
+  return Http.post("/warranty", warrantyData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// GET /api/warranty - Danh sách bảo hành (Admin)
+export const getWarrantyList = (params = {}) => {
+  const token = localStorage.getItem("accessToken");
+  const queryString = new URLSearchParams(params).toString();
+  return Http.get(`/warranty${queryString ? `?${queryString}` : ""}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// GET /api/warranty/stats - Thống kê bảo hành (Admin)
+export const getWarrantyStats = () => {
+  const token = localStorage.getItem("accessToken");
+  return Http.get("/warranty/stats", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// GET /api/warranty/:id - Chi tiết bảo hành (Admin)
+export const getWarrantyDetail = (id) => {
+  const token = localStorage.getItem("accessToken");
+  return Http.get(`/warranty/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// POST /api/warranty/:id/claims - Tạo yêu cầu bảo hành (Admin)
+export const createWarrantyClaim = (id, claimData) => {
+  const token = localStorage.getItem("accessToken");
+  return Http.post(`/warranty/${id}/claims`, claimData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// PUT /api/warranty/:id/claims/:claimId - Cập nhật trạng thái claim (Admin)
+export const updateWarrantyClaim = (id, claimId, updateData) => {
+  const token = localStorage.getItem("accessToken");
+  return Http.put(`/warranty/${id}/claims/${claimId}`, updateData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// PUT /api/warranty/:id/void - Hủy bảo hành (Admin)
+export const voidWarranty = (id, reason) => {
+  const token = localStorage.getItem("accessToken");
+  return Http.put(
+    `/warranty/${id}/void`,
+    { reason },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
+// GET /api/warranty/check/:code - Tra cứu bảo hành (Public)
+export const checkWarrantyByCode = (code) => {
+  return Http.get(`/warranty/check/${code}`);
+};
+
+// GET /api/warranty/user - Lấy danh sách bảo hành của user đăng nhập
+export const getUserWarranties = () => {
+  const token = localStorage.getItem("accessToken");
+  return Http.get("/warranty/user", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// GET /api/warranty/check-imei/:imei - Tra cứu bảo hành theo IMEI (Public)
+export const checkWarrantyByIMEI = (imei) => {
+  return Http.get(`/warranty/check-imei/${imei}`);
+};
+
 // ---------------- CHATBOT ----------------
 // Public endpoints (không cần đăng nhập)
 
@@ -1261,7 +1376,7 @@ export const chatAsk = (message, sessionId) => {
       ? {
           headers: { Authorization: `Bearer ${token}` },
         }
-      : {}
+      : {},
   );
 };
 
@@ -1300,7 +1415,7 @@ export const chatOrderTracking = (message) => {
     { message },
     {
       headers: { Authorization: `Bearer ${token}` },
-    }
+    },
   );
 };
 

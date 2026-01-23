@@ -42,7 +42,7 @@ const isHeadphoneProduct = (product) => {
         "frequency",
         "noiseReduction",
         "batteryLife",
-      ].includes(key)
+      ].includes(key),
     )
   ) {
     return true;
@@ -64,6 +64,7 @@ const Payment = () => {
   const [note, setNote] = useState("");
   const [showQR, setShowQR] = useState(false);
   const [orderId, setOrderId] = useState("");
+  const [transactionCode, setTransactionCode] = useState("");
   const [isOrdering, setIsOrdering] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
@@ -122,42 +123,14 @@ const Payment = () => {
   };
 
   const handleConfirmPayment = async () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    await clearCartApi();
-    dispatch(clearCart());
-    navigate("/OrderList");
-  };
-
-  const total = items.reduce(
-    (sum, item) =>
-      sum +
-      item.quantity *
-        (item.variant?.price || item.price || item.productId?.price || 0),
-    0
-  );
-
-  // Số tài khoản MB Bank
-  const bankAccount = "0362782295";
-  // Tên ngân hàng (MB)
-  const bankCode = "MB";
-  // Tên chủ tài khoản (nếu muốn hiển thị)
-  const bankName = "Nguyễn Minh Quang";
-
-  // Hàm tạo link QR VietQR
-  const getVietQRUrl = (amount, info) => {
-    return `https://img.vietqr.io/image/${bankCode}-${bankAccount}-compact.png?amount=${amount}&addInfo=${encodeURIComponent(
-      info
-    )}`;
-  };
-
-  const handleOrder = async () => {
+    // Tạo đơn hàng khi khách xác nhận thanh toán online
     if (!selectedAddressId) {
       alert("Vui lòng chọn địa chỉ giao hàng!");
       return;
     }
 
     const selectedAddress = userAddresses.find(
-      (addr) => addr._id === selectedAddressId
+      (addr) => addr._id === selectedAddressId,
     );
     if (!selectedAddress) {
       alert("Địa chỉ không hợp lệ!");
@@ -177,29 +150,118 @@ const Payment = () => {
         })),
         address: selectedAddress.address,
         phone: selectedAddress.phone || phone,
+        note: transactionCode, // Mã giao dịch thay thế cho ghi chú
+        paymentMethod,
+        total,
+        transactionCode, // Gửi mã giao dịch để admin check
+      };
+      console.log("[CONFIRM PAYMENT] Tạo đơn hàng online:", orderData);
+
+      // Gọi API tạo đơn hàng
+      const res = await createOrder(orderData);
+      console.log("[CONFIRM PAYMENT] Order API response:", res.data);
+
+      const newOrderId = Array.isArray(res.data)
+        ? res.data[0]._id
+        : res.data._id;
+      setOrderId(newOrderId);
+
+      // Clear giỏ hàng và chuyển hướng
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      await clearCartApi();
+      dispatch(clearCart());
+      navigate("/OrderList");
+    } catch (err) {
+      console.error("[CONFIRM PAYMENT] Order error:", err);
+      if (err.response) {
+        console.error(
+          "[CONFIRM PAYMENT] Lỗi chi tiết từ API:",
+          err.response.data,
+        );
+      }
+      alert("Đặt hàng thất bại. Vui lòng thử lại!");
+    } finally {
+      setIsOrdering(false);
+    }
+  };
+
+  const total = items.reduce(
+    (sum, item) =>
+      sum +
+      item.quantity *
+        (item.variant?.price || item.price || item.productId?.price || 0),
+    0,
+  );
+
+  // Số tài khoản MB Bank
+  const bankAccount = "0362782295";
+  // Tên ngân hàng (MB)
+  const bankCode = "MB";
+  // Tên chủ tài khoản (nếu muốn hiển thị)
+  const bankName = "Nguyễn Minh Quang";
+
+  // Hàm tạo link QR VietQR
+  const getVietQRUrl = (amount, info) => {
+    return `https://img.vietqr.io/image/${bankCode}-${bankAccount}-compact.png?amount=${amount}&addInfo=${encodeURIComponent(
+      info,
+    )}`;
+  };
+
+  const handleOrder = async () => {
+    if (!selectedAddressId) {
+      alert("Vui lòng chọn địa chỉ giao hàng!");
+      return;
+    }
+
+    const selectedAddress = userAddresses.find(
+      (addr) => addr._id === selectedAddressId,
+    );
+    if (!selectedAddress) {
+      alert("Địa chỉ không hợp lệ!");
+      return;
+    }
+
+    // Nếu là thanh toán online, chỉ hiển thị modal QR mà chưa tạo đơn
+    if (paymentMethod === "online") {
+      // Tạo mã giao dịch tự động: DH + timestamp + random
+      const timestamp = Date.now().toString().slice(-8);
+      const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+      const txnCode = `DH${timestamp}${random}`;
+      setTransactionCode(txnCode);
+      setShowQR(true);
+      setCountdown(269); // Reset countdown khi mở QR
+      return;
+    }
+
+    // Nếu là COD, tạo đơn hàng ngay
+    setIsOrdering(true);
+    try {
+      const orderData = {
+        items: items.map((item) => ({
+          productId: item.productId._id,
+          quantity: item.quantity,
+          variant: item.variant,
+          color: item.color || item.variant?.color,
+          price:
+            item.variant?.price || item.price || item.productId?.price || 0,
+        })),
+        address: selectedAddress.address,
+        phone: selectedAddress.phone || phone,
         note,
         paymentMethod,
         total,
       };
       console.log("[CREATE ORDER] Payload FE gửi lên:", orderData);
 
-      // Gọi API tạo đơn hàng thông thường (không kiểm tra tồn kho)
+      // Gọi API tạo đơn hàng
       const res = await createOrder(orderData);
       console.log("[Payment] Order API response:", res.data);
 
-      const newOrderId = Array.isArray(res.data)
-        ? res.data[0]._id
-        : res.data._id;
-      setOrderId(newOrderId);
-      if (paymentMethod === "online") {
-        setShowQR(true);
-        setCountdown(269); // Reset countdown khi mở QR
-      } else {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        await clearCartApi();
-        dispatch(clearCart());
-        navigate("/OrderList");
-      }
+      // COD: Chuyển hướng ngay
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      await clearCartApi();
+      dispatch(clearCart());
+      navigate("/OrderList");
     } catch (err) {
       console.error("[Payment] Order error:", err);
       if (err.response) {
@@ -375,14 +437,7 @@ const Payment = () => {
           />{" "}
           Giao hàng tận nơi
         </label>
-        <label className="payment-radio-label">
-          <input
-            type="radio"
-            checked={deliveryMethod === "store"}
-            onChange={() => setDeliveryMethod("store")}
-          />{" "}
-          Nhận hàng tại cửa hàng
-        </label>
+
         <h4>Phương thức thanh toán</h4>
         <label className="payment-radio-label">
           <input
@@ -542,12 +597,11 @@ const Payment = () => {
               <div className="qr-modal-left">
                 <div className="qr-info-section">
                   <p className="qr-info-text">
-                    Đơn hàng #{orderId?.slice(-8) || "XXXXXXXX"}
+                    Mã giao dịch: {transactionCode}
                   </p>
                   <p className="qr-info-subtext">
-                    Vui lòng hoàn tất thanh toán trong thời gian quy định để đơn
-                    hàng được xử lý nhanh chóng. Sau khi thanh toán thành công,
-                    đơn hàng sẽ được chuẩn bị và giao đến bạn.
+                    Vui lòng chuyển khoản với nội dung là mã giao dịch trên. Sau
+                    khi thanh toán, nhấn "Xác nhận thanh toán" để hoàn tất.
                   </p>
                 </div>
 
@@ -661,7 +715,7 @@ const Payment = () => {
                     <img
                       src={getVietQRUrl(
                         total,
-                        orderId || "Thanh toan don hang"
+                        transactionCode || "Thanh toan don hang",
                       )}
                       alt="QR chuyển khoản"
                       className="qr-code-image"
@@ -688,7 +742,7 @@ const Payment = () => {
                     </div>
                     <div className="qr-payment-row">
                       <span>Nội dung:</span>
-                      <strong>{orderId || "Thanh toan don hang"}</strong>
+                      <strong>{transactionCode}</strong>
                     </div>
                   </div>
                 </div>
@@ -700,14 +754,16 @@ const Payment = () => {
               <button
                 className="qr-modal-btn qr-modal-btn-secondary"
                 onClick={() => setShowQR(false)}
+                disabled={isOrdering}
               >
-                Đóng
+                Hủy
               </button>
               <button
                 className="qr-modal-btn qr-modal-btn-primary"
                 onClick={handleConfirmPayment}
+                disabled={isOrdering}
               >
-                Hoàn tất
+                {isOrdering ? "Đang xử lý..." : "Xác nhận thanh toán"}
               </button>
             </div>
           </div>

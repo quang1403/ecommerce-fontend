@@ -11,3 +11,4 @@ export { default as Updates } from "./Updates";
 export { default as CustomerReview } from "./CustomerReview";
 export { default as OrderList } from "./OrderList";
 export { default as OrderManagement } from "./OrderManagement";
+export { default as InventoryManagement } from "./InventoryManagement";
